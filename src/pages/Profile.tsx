@@ -1,98 +1,100 @@
 import { Globe, Building2, Compass, Route, Award, Settings, LogOut, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import StatCard from "@/components/shared/StatCard";
 import EliMascot from "@/components/shared/EliMascot";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const badges = [
-  { emoji: "🧭", name: "Explorer", desc: "Visited 5+ countries" },
-  { emoji: "🌍", name: "World Traveler", desc: "10,000+ km traveled" },
-  { emoji: "⛰️", name: "Adventurer", desc: "Completed 10 trips" },
+  { emoji: "🧭", name: "Explorer", desc: "Visited 5+ countries", check: (p: any) => (p?.countries_visited || 0) >= 5 },
+  { emoji: "🌍", name: "World Traveler", desc: "10,000+ km traveled", check: (p: any) => (p?.total_distance_km || 0) >= 10000 },
+  { emoji: "⛰️", name: "Adventurer", desc: "Completed 10 trips", check: (p: any, tripCount: number) => tripCount >= 10 },
 ];
 
 const Profile = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+  const [tripCount, setTripCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase.from("profiles").select("*").eq("user_id", user.id).single(),
+      supabase.from("trips").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+    ]).then(([profileRes, tripsRes]) => {
+      if (profileRes.data) setProfile(profileRes.data);
+      setTripCount(tripsRes.count || 0);
+    });
+  }, [user]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <div className="px-5 pt-12 space-y-6 pb-8">
-      {/* Profile header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4"
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4">
         <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-display font-bold text-primary">
-          A
+          {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?"}
         </div>
         <div>
-          <h1 className="text-xl font-display font-bold text-foreground">Alex Traveler</h1>
-          <p className="text-sm text-muted-foreground">Exploring the world 🌎</p>
+          <h1 className="text-xl font-display font-bold text-foreground">{profile?.display_name || "Traveler"}</h1>
+          <p className="text-sm text-muted-foreground">{profile?.bio || "Exploring the world 🌎"}</p>
         </div>
       </motion.div>
 
-      {/* Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-4 gap-2"
-      >
-        <StatCard icon={Globe} label="Countries" value={8} />
-        <StatCard icon={Building2} label="Cities" value={23} />
-        <StatCard icon={Compass} label="Trips" value={12} />
-        <StatCard icon={Route} label="km" value="14k" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-4 gap-2">
+        <StatCard icon={Globe} label="Countries" value={profile?.countries_visited ?? 0} />
+        <StatCard icon={Building2} label="Cities" value={profile?.cities_visited ?? 0} />
+        <StatCard icon={Compass} label="Trips" value={tripCount} />
+        <StatCard icon={Route} label="km" value={profile?.total_distance_km ? `${Math.round(profile.total_distance_km / 1000)}k` : "0"} />
       </motion.div>
 
-      {/* Eli */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <EliMascot message="Great progress! 3 more countries to unlock Gold Explorer!" size="sm" />
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
+        <EliMascot message={tripCount > 0 ? "Great progress! Keep exploring!" : "Create your first trip to start earning badges!"} size="sm" />
       </motion.div>
 
-      {/* Achievements */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="space-y-3"
-      >
+      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-3">
         <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
           <Award className="h-5 w-5 text-accent" /> Achievements
         </h2>
         <div className="space-y-2">
-          {badges.map((b) => (
-            <div key={b.name} className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3">
-              <span className="text-2xl">{b.emoji}</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">{b.name}</p>
-                <p className="text-xs text-muted-foreground">{b.desc}</p>
+          {badges.map((b) => {
+            const earned = b.check(profile, tripCount);
+            return (
+              <div key={b.name} className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3">
+                <span className="text-2xl">{b.emoji}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">{b.name}</p>
+                  <p className="text-xs text-muted-foreground">{b.desc}</p>
+                </div>
+                <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${earned ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
+                  {earned ? "Earned" : "Locked"}
+                </div>
               </div>
-              <div className="bg-success/15 text-success text-[10px] font-bold px-2 py-0.5 rounded-full">Earned</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </motion.section>
 
-      {/* Settings */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="space-y-2"
-      >
-        {[
-          { icon: Settings, label: "Settings" },
-          { icon: LogOut, label: "Sign Out" },
-        ].map((item) => (
-          <button
-            key={item.label}
-            className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors"
-          >
-            <item.icon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground flex-1">{item.label}</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </button>
-        ))}
+      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-2">
+        <button className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors">
+          <Settings className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground flex-1">Settings</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <button
+          onClick={handleSignOut}
+          className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors"
+        >
+          <LogOut className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground flex-1">Sign Out</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
       </motion.section>
     </div>
   );
