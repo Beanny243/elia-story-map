@@ -26,6 +26,9 @@ const Memories = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memoryToDelete, setMemoryToDelete] = useState<string | null>(null);
   const [editingMemory, setEditingMemory] = useState<any | null>(null);
+  const [filterCountry, setFilterCountry] = useState("");
+  const [filterTripId, setFilterTripId] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Form state
