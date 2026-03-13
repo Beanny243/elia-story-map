@@ -1,4 +1,4 @@
-import { Upload, X, Camera, Calendar, MessageSquare, Loader2 } from "lucide-react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import CountrySelector from "@/components/shared/CountrySelector";
 import MemoryCard from "@/components/shared/MemoryCard";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,9 @@ const Memories = () => {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memoryToDelete, setMemoryToDelete] = useState<string | null>(null);
+  const [editingMemory, setEditingMemory] = useState<any | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Form state
@@ -56,13 +60,38 @@ const Memories = () => {
     setCaption("");
     setMemoryDate(new Date().toISOString().split("T")[0]);
     setTripId("");
+    setEditingMemory(null);
+  };
+
+  const openEditDialog = (memory: any) => {
+    setEditingMemory(memory);
+    setPhotoPreview(memory.photo_url || null);
+    setLocation(memory.location || "");
+    setCaption(memory.caption || "");
+    setMemoryDate(memory.memory_date || new Date().toISOString().split("T")[0]);
+    setTripId(memory.trip_id || "");
+    setPhotoFile(null);
+    setOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!memoryToDelete) return;
+    const { error } = await supabase.from("memories").delete().eq("id", memoryToDelete);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setMemories((prev) => prev.filter((m) => m.id !== memoryToDelete));
+      toast({ title: "Memory deleted", description: "The memory has been removed." });
+    }
+    setMemoryToDelete(null);
+    setDeleteDialogOpen(false);
   };
 
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
 
-    let photoUrl: string | null = null;
+    let photoUrl: string | null = editingMemory?.photo_url || null;
 
     if (photoFile) {
       setUploading(true);
@@ -84,26 +113,47 @@ const Memories = () => {
       setUploading(false);
     }
 
-    const { data, error } = await supabase.from("memories").insert({
-      user_id: user.id,
+    const payload = {
       photo_url: photoUrl,
       location: location || null,
       caption: caption || null,
       memory_date: memoryDate || null,
       trip_id: tripId || null,
-    }).select().single();
+    };
 
-    setSaving(false);
+    if (editingMemory) {
+      const { data, error } = await supabase
+        .from("memories")
+        .update(payload)
+        .eq("id", editingMemory.id)
+        .select()
+        .single();
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+      setSaving(false);
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+      setMemories((prev) => prev.map((m) => (m.id === editingMemory.id ? data : m)));
+      toast({ title: "Memory updated! ✏️", description: "Your changes have been saved." });
+    } else {
+      const { data, error } = await supabase
+        .from("memories")
+        .insert({ ...payload, user_id: user.id })
+        .select()
+        .single();
+
+      setSaving(false);
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+      setMemories((prev) => [data, ...prev]);
+      toast({ title: "Memory saved! 📸", description: "Your moment has been captured." });
     }
 
-    setMemories((prev) => [data, ...prev]);
     resetForm();
     setOpen(false);
-    toast({ title: "Memory saved! 📸", description: "Your moment has been captured." });
   };
 
   return (
@@ -115,7 +165,7 @@ const Memories = () => {
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
         <Button
-          onClick={() => setOpen(true)}
+          onClick={() => { resetForm(); setOpen(true); }}
           className="w-full rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
         >
           <Upload className="h-4 w-4" /> Add Memory
@@ -141,21 +191,24 @@ const Memories = () => {
                 location={m.location || "Unknown"}
                 date={m.memory_date ? new Date(m.memory_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
                 caption={m.caption || ""}
+                onEdit={() => openEditDialog(m)}
+                onDelete={() => { setMemoryToDelete(m.id); setDeleteDialogOpen(true); }}
               />
             </motion.div>
           ))}
         </div>
       )}
 
-      {/* Add Memory Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Add/Edit Memory Dialog */}
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
         <DialogContent className="max-w-[360px] rounded-2xl p-5 gap-4">
           <DialogHeader>
-            <DialogTitle className="font-display text-lg">New Memory</DialogTitle>
+            <DialogTitle className="font-display text-lg">
+              {editingMemory ? "Edit Memory" : "New Memory"}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Photo Upload */}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             {photoPreview ? (
               <div className="relative rounded-xl overflow-hidden aspect-video">
@@ -234,6 +287,8 @@ const Memories = () => {
                   <Loader2 className="h-4 w-4 animate-spin" />
                   {uploading ? "Uploading..." : "Saving..."}
                 </>
+              ) : editingMemory ? (
+                "Update Memory"
               ) : (
                 "Save Memory"
               )}
@@ -241,6 +296,22 @@ const Memories = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-[320px] rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete memory?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
