@@ -1,6 +1,6 @@
-import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen } from "lucide-react";
+import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import StatCard from "@/components/shared/StatCard";
@@ -9,6 +9,51 @@ import MemoryCard from "@/components/shared/MemoryCard";
 import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+
+type Suggestion = { title: string; description: string; emoji: string; action?: string };
+
+const STYLE_SUGGESTIONS: Record<string, Suggestion[]> = {
+  backpacker: [
+    { title: "Southeast Asia Loop", description: "Budget-friendly trail through Thailand, Vietnam & Cambodia", emoji: "🎒", action: "/trips/create" },
+    { title: "Hostel Hopping Europe", description: "Interrail across 5 countries in 3 weeks", emoji: "🚂", action: "/trips/create" },
+  ],
+  luxury: [
+    { title: "Maldives Retreat", description: "Overwater villas & private dining experiences", emoji: "🏝️", action: "/trips/create" },
+    { title: "Swiss Alps Escape", description: "5-star chalets with mountain panoramas", emoji: "🏔️", action: "/trips/create" },
+  ],
+  adventure: [
+    { title: "Patagonia Trek", description: "Hike Torres del Paine & glaciers", emoji: "🧗", action: "/trips/create" },
+    { title: "Iceland Ring Road", description: "Volcanoes, waterfalls & northern lights", emoji: "🌋", action: "/trips/create" },
+  ],
+  cultural: [
+    { title: "Japan Heritage Trail", description: "Temples, tea ceremonies & ancient cities", emoji: "🏯", action: "/trips/create" },
+    { title: "Morocco Discovery", description: "Medinas, riads & Sahara desert camps", emoji: "🕌", action: "/trips/create" },
+  ],
+  relaxation: [
+    { title: "Bali Wellness Retreat", description: "Yoga, spas & rice terrace walks", emoji: "🧘", action: "/trips/create" },
+    { title: "Greek Island Hopping", description: "Sun, sea & slow living in the Cyclades", emoji: "☀️", action: "/trips/create" },
+  ],
+  road_trip: [
+    { title: "Pacific Coast Highway", description: "San Francisco to LA along the coast", emoji: "🚗", action: "/trips/create" },
+    { title: "New Zealand Campervan", description: "North & South Island scenic routes", emoji: "🚐", action: "/trips/create" },
+  ],
+};
+
+const INTEREST_SUGGESTIONS: Record<string, Suggestion> = {
+  food: { title: "Food Crawl", description: "Discover local street food & hidden gems", emoji: "🍜" },
+  photography: { title: "Photo Walk", description: "Capture stunning golden-hour shots", emoji: "📸" },
+  nightlife: { title: "Nightlife Guide", description: "Top bars, clubs & live music spots", emoji: "🎶" },
+  history: { title: "History Deep Dive", description: "Museums, ruins & walking tours", emoji: "📚" },
+  nature: { title: "Nature Escape", description: "National parks & scenic trails", emoji: "🌿" },
+  romance: { title: "Romantic Getaway", description: "Sunset dinners & couple experiences", emoji: "💕" },
+};
+
+const FREQUENCY_MESSAGES: Record<string, string> = {
+  yearly: "Make your annual trip unforgettable!",
+  few_times: "Your next adventure awaits — let's plan it!",
+  monthly: "Explorer mode ON — where to next?",
+  nomad: "Home is wherever you are — keep moving!",
+};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,7 +76,6 @@ const Index = () => {
       if (profileRes.data) setProfile(profileRes.data);
       if (tripsRes.data) {
         setTrips(tripsRes.data);
-        // Fetch stop counts
         const counts: Record<string, number> = {};
         for (const trip of tripsRes.data) {
           const { count } = await supabase.from("trip_stops").select("*", { count: "exact", head: true }).eq("trip_id", trip.id);
@@ -44,6 +88,40 @@ const Index = () => {
 
     fetchData();
   }, [user]);
+
+  const personalizedSuggestions = useMemo(() => {
+    if (!profile) return [];
+    const suggestions: Suggestion[] = [];
+
+    // Add style-based suggestions
+    if (profile.travel_style && STYLE_SUGGESTIONS[profile.travel_style]) {
+      suggestions.push(...STYLE_SUGGESTIONS[profile.travel_style]);
+    }
+
+    // Add interest-based suggestions
+    const interests = profile.interests as string[] | null;
+    if (interests?.length) {
+      for (const interest of interests.slice(0, 2)) {
+        if (INTEREST_SUGGESTIONS[interest]) {
+          suggestions.push(INTEREST_SUGGESTIONS[interest]);
+        }
+      }
+    }
+
+    return suggestions.slice(0, 4);
+  }, [profile]);
+
+  const mascotMessage = useMemo(() => {
+    if (!profile) return "Plan your first trip to get started!";
+    if (trips.length > 0) {
+      return profile.trip_frequency && FREQUENCY_MESSAGES[profile.trip_frequency]
+        ? FREQUENCY_MESSAGES[profile.trip_frequency]
+        : "Ready for your next adventure?";
+    }
+    return profile.travel_style
+      ? `I see you love ${profile.travel_style} travel — let's plan something!`
+      : "Plan your first trip to get started!";
+  }, [profile, trips]);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -63,7 +141,7 @@ const Index = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}>
-        <EliMascot message={trips.length > 0 ? "Ready for your next adventure?" : "Plan your first trip to get started!"} size="sm" />
+        <EliMascot message={mascotMessage} size="sm" />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid grid-cols-4 gap-2">
@@ -84,6 +162,30 @@ const Index = () => {
           <BookOpen className="h-4 w-4" />
         </Button>
       </motion.div>
+
+      {/* Personalized Suggestions */}
+      {personalizedSuggestions.length > 0 && (
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-accent" />
+            <h2 className="font-display font-bold text-lg text-foreground">For You</h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+            {personalizedSuggestions.map((s, i) => (
+              <motion.button
+                key={i}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => s.action && navigate(s.action)}
+                className="flex-shrink-0 w-44 bg-card rounded-2xl p-4 border border-border text-left shadow-sm hover:border-accent/40 transition-colors"
+              >
+                <span className="text-2xl mb-2 block">{s.emoji}</span>
+                <h3 className="text-sm font-bold text-foreground leading-tight">{s.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.description}</p>
+              </motion.button>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-3">
         <div className="flex items-center justify-between">
