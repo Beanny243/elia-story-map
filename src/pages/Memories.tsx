@@ -194,6 +194,7 @@ const Memories = () => {
                 caption={m.caption || ""}
                 onEdit={() => openEditDialog(m)}
                 onDelete={() => { setMemoryToDelete(m.id); setDeleteDialogOpen(true); }}
+                onPhotoClick={() => setViewerPhoto(m.photo_url || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80")}
               />
             </motion.div>
           ))}
