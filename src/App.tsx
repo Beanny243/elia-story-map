@@ -25,6 +25,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  const [checking, setChecking] = useState(true);
+  const [onboarded, setOnboarded] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("onboarding_completed").eq("user_id", user.id).single()
+      .then(({ data }) => {
+        setOnboarded(data?.onboarding_completed ?? false);
+        setChecking(false);
+      });
+  }, [user]);
+
+  if (checking) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>;
+  if (!onboarded) return <Navigate to="/onboarding" replace />;
+  return <>{children}</>;
+};
+
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
