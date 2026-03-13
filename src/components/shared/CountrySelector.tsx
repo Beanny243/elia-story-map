@@ -46,7 +46,7 @@ const CountrySelector = ({ value, onValueChange }: CountrySelectorProps) => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="max-h-60 overflow-y-auto p-1">
+        <div className="max-h-60 overflow-y-auto overscroll-contain p-1 -webkit-overflow-scrolling-touch" style={{ WebkitOverflowScrolling: 'touch' }}>
           {filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No country found.</p>
           ) : (
@@ -60,7 +60,7 @@ const CountrySelector = ({ value, onValueChange }: CountrySelectorProps) => {
                   setSearch("");
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-secondary",
+                  "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-secondary min-h-[44px]",
                   country === value && "bg-secondary/70 font-medium"
                 )}
               >
