@@ -1,20 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import EliMascot from "@/components/shared/EliMascot";
-import { ArrowRight, ArrowLeft, Check, Plane, Backpack, Palmtree, Mountain, Building2, Utensils, Camera, Music, Book, Heart, Globe, MapPin } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-interface StepOption {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  emoji?: string;
-}
+import { ArrowRight, ArrowLeft, Check, Backpack, Palmtree, Mountain, Building2, Utensils, Camera, Music, Book, Heart, Globe, MapPin, Plane } from "lucide-react";
 
 const STEPS = [
   {
@@ -24,12 +14,12 @@ const STEPS = [
     mascotMessage: "Let's find your travel vibe! 🌍",
     multiSelect: false,
     options: [
-      { label: "Backpacker", value: "backpacker", icon: <Backpack className="h-6 w-6" />, emoji: "🎒" },
-      { label: "Luxury", value: "luxury", icon: <Palmtree className="h-6 w-6" />, emoji: "✨" },
-      { label: "Adventure", value: "adventure", icon: <Mountain className="h-6 w-6" />, emoji: "🧗" },
-      { label: "Cultural", value: "cultural", icon: <Building2 className="h-6 w-6" />, emoji: "🏛️" },
-      { label: "Relaxation", value: "relaxation", icon: <Palmtree className="h-6 w-6" />, emoji: "🏖️" },
-      { label: "Road Trip", value: "road_trip", icon: <MapPin className="h-6 w-6" />, emoji: "🚗" },
+      { label: "Backpacker", value: "backpacker", emoji: "🎒" },
+      { label: "Luxury", value: "luxury", emoji: "✨" },
+      { label: "Adventure", value: "adventure", emoji: "🧗" },
+      { label: "Cultural", value: "cultural", emoji: "🏛️" },
+      { label: "Relaxation", value: "relaxation", emoji: "🏖️" },
+      { label: "Road Trip", value: "road_trip", emoji: "🚗" },
     ],
   },
   {
@@ -39,10 +29,10 @@ const STEPS = [
     mascotMessage: "Tell me about your travel rhythm! ✈️",
     multiSelect: false,
     options: [
-      { label: "Once a year", value: "yearly", icon: <Globe className="h-6 w-6" />, emoji: "📅" },
-      { label: "2-3 trips/year", value: "few_times", icon: <Plane className="h-6 w-6" />, emoji: "🗺️" },
-      { label: "Monthly explorer", value: "monthly", icon: <MapPin className="h-6 w-6" />, emoji: "🌟" },
-      { label: "Digital nomad", value: "nomad", icon: <Globe className="h-6 w-6" />, emoji: "💻" },
+      { label: "Once a year", value: "yearly", emoji: "📅" },
+      { label: "2-3 trips/year", value: "few_times", emoji: "🗺️" },
+      { label: "Monthly explorer", value: "monthly", emoji: "🌟" },
+      { label: "Digital nomad", value: "nomad", emoji: "💻" },
     ],
   },
   {
@@ -52,12 +42,12 @@ const STEPS = [
     mascotMessage: "Almost there! What makes your trips special? 🎉",
     multiSelect: true,
     options: [
-      { label: "Food & Drink", value: "food", icon: <Utensils className="h-6 w-6" />, emoji: "🍜" },
-      { label: "Photography", value: "photography", icon: <Camera className="h-6 w-6" />, emoji: "📸" },
-      { label: "Nightlife", value: "nightlife", icon: <Music className="h-6 w-6" />, emoji: "🎶" },
-      { label: "History", value: "history", icon: <Book className="h-6 w-6" />, emoji: "📚" },
-      { label: "Nature", value: "nature", icon: <Mountain className="h-6 w-6" />, emoji: "🌿" },
-      { label: "Romance", value: "romance", icon: <Heart className="h-6 w-6" />, emoji: "💕" },
+      { label: "Food & Drink", value: "food", emoji: "🍜" },
+      { label: "Photography", value: "photography", emoji: "📸" },
+      { label: "Nightlife", value: "nightlife", emoji: "🎶" },
+      { label: "History", value: "history", emoji: "📚" },
+      { label: "Nature", value: "nature", emoji: "🌿" },
+      { label: "Romance", value: "romance", emoji: "💕" },
     ],
   },
 ];
@@ -65,10 +55,7 @@ const STEPS = [
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
-  const [saving, setSaving] = useState(false);
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const step = STEPS[currentStep];
   const progress = ((currentStep + 1) / STEPS.length) * 100;
@@ -97,29 +84,13 @@ const Onboarding = () => {
     return answers[step.id] === value;
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      setSaving(true);
-      try {
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            travel_style: answers.travel_style as string,
-            trip_frequency: answers.trip_frequency as string,
-            interests: answers.interests as string[],
-            onboarding_completed: true,
-          })
-          .eq("user_id", user!.id);
-
-        if (error) throw error;
-        navigate("/", { replace: true });
-      } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
-      } finally {
-        setSaving(false);
-      }
+      // Save answers to localStorage so Auth page can use them after signup
+      localStorage.setItem("onboarding_answers", JSON.stringify(answers));
+      navigate("/auth");
     }
   };
 
@@ -127,17 +98,9 @@ const Onboarding = () => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
-  const handleSkip = async () => {
-    setSaving(true);
-    try {
-      await supabase
-        .from("profiles")
-        .update({ onboarding_completed: true })
-        .eq("user_id", user!.id);
-      navigate("/", { replace: true });
-    } catch {
-      navigate("/", { replace: true });
-    }
+  const handleSkip = () => {
+    localStorage.setItem("onboarding_answers", JSON.stringify({}));
+    navigate("/auth");
   };
 
   return (
@@ -225,10 +188,10 @@ const Onboarding = () => {
       <div className="mt-6 pt-4">
         <Button
           onClick={handleNext}
-          disabled={!hasAnswer || saving}
+          disabled={!hasAnswer}
           className="w-full rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90 h-12 font-bold disabled:opacity-40"
         >
-          {saving ? "Saving..." : currentStep === STEPS.length - 1 ? "Let's Go!" : "Continue"}
+          {currentStep === STEPS.length - 1 ? "Create Account" : "Continue"}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
