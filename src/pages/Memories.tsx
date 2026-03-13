@@ -1,6 +1,7 @@
 import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import PhotoViewer from "@/components/shared/PhotoViewer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
