@@ -177,21 +177,82 @@ const Memories = () => {
         <p className="text-sm text-muted-foreground">Your travel timeline</p>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="flex gap-2">
         <Button
           onClick={() => { resetForm(); setOpen(true); }}
-          className="w-full rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+          className="flex-1 rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
         >
           <Upload className="h-4 w-4" /> Add Memory
         </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-xl relative shrink-0"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <Filter className="h-4 w-4" />
+          {activeFilterCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
       </motion.div>
 
-      {memories.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">No memories yet. Start capturing your adventures!</p>
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden space-y-3"
+          >
+            <div className="rounded-xl border border-border bg-card p-3 space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground">Country</Label>
+                <CountrySelector value={filterCountry} onValueChange={setFilterCountry} />
+              </div>
+              {trips.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Trip</Label>
+                  <Select value={filterTripId} onValueChange={setFilterTripId}>
+                    <SelectTrigger className="rounded-xl bg-card">
+                      <SelectValue placeholder="All trips" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All trips</SelectItem>
+                      {trips.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.title} — {t.destination}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-xs text-muted-foreground"
+                  onClick={() => { setFilterCountry(""); setFilterTripId(""); }}
+                >
+                  Clear filters
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {filteredMemories.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          {memories.length === 0 ? "No memories yet. Start capturing your adventures!" : "No memories match your filters."}
+        </p>
       ) : (
         <div className="relative pl-6 space-y-4 pb-4">
           <div className="absolute left-[11px] top-2 bottom-6 w-0.5 bg-border" />
-          {memories.map((m, i) => (
+          {filteredMemories.map((m, i) => (
             <motion.div
               key={m.id}
               initial={{ opacity: 0, x: -20 }}
