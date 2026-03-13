@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,33 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Check if coming from onboarding (has answers stored)
+  const hasOnboardingAnswers = !!localStorage.getItem("onboarding_answers");
+
+  // If user came from onboarding, default to signup
+  useEffect(() => {
+    if (hasOnboardingAnswers) {
+      setIsLogin(false);
+    }
+  }, [hasOnboardingAnswers]);
+
+  const saveOnboardingAnswers = async (userId: string) => {
+    const raw = localStorage.getItem("onboarding_answers");
+    if (!raw) return;
+    try {
+      const answers = JSON.parse(raw);
+      if (Object.keys(answers).length === 0) return;
+      await supabase.from("profiles").update({
+        travel_style: answers.travel_style || null,
+        trip_frequency: answers.trip_frequency || null,
+        interests: answers.interests || [],
+        onboarding_completed: true,
+      }).eq("user_id", userId);
+    } catch {} finally {
+      localStorage.removeItem("onboarding_answers");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -28,7 +55,7 @@ const Auth = () => {
         if (error) throw error;
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -37,10 +64,22 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast({
-          title: "Account created!",
-          description: "Check your email to verify your account.",
-        });
+
+        // If auto-confirm is off, user needs to verify email
+        if (data.user && !data.session) {
+          toast({
+            title: "Account created!",
+            description: "Check your email to verify your account.",
+          });
+          // Save answers so they persist — we'll apply them on first login
+          // Keep onboarding_answers in localStorage for now
+        }
+
+        // If session exists (auto-confirm on), save answers immediately
+        if (data.user && data.session) {
+          await saveOnboardingAnswers(data.user.id);
+          navigate("/");
+        }
       }
     } catch (error: any) {
       toast({
@@ -52,6 +91,16 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Listen for auth state to save onboarding answers on email verification login
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        await saveOnboardingAnswers(session.user.id);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-5">
@@ -66,7 +115,7 @@ const Auth = () => {
         </div>
 
         <EliMascot
-          message={isLogin ? "Welcome back, explorer!" : "Ready to start your adventure?"}
+          message={isLogin ? "Welcome back, explorer!" : "Let's create your account!"}
           size="sm"
         />
 
