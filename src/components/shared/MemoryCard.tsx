@@ -1,16 +1,31 @@
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, Trash2, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MemoryCardProps {
   photo: string;
   location: string;
   date: string;
   caption: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-const MemoryCard = ({ photo, location, date, caption }: MemoryCardProps) => (
-  <div className="bg-card rounded-2xl overflow-hidden shadow-card">
+const MemoryCard = ({ photo, location, date, caption, onEdit, onDelete }: MemoryCardProps) => (
+  <div className="bg-card rounded-2xl overflow-hidden shadow-card group relative">
     <div className="h-48 overflow-hidden">
       <img src={photo} alt={caption} className="w-full h-full object-cover" />
+      <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onEdit && (
+          <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm" onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {onDelete && (
+          <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm text-destructive hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
     </div>
     <div className="p-3 space-y-1.5">
       <p className="text-sm font-medium text-foreground leading-snug">{caption}</p>
