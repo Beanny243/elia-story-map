@@ -35,6 +35,7 @@ const MapScreen = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const animFrameRef = useRef<number[]>([]);
   const { user } = useAuth();
   const [stops, setStops] = useState<StopData[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
