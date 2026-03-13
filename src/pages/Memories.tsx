@@ -178,15 +178,8 @@ const Memories = () => {
             )}
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5" /> Location
-              </Label>
-              <Input
-                placeholder="e.g. Bali, Indonesia"
-                className="rounded-xl bg-card"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+              <Label className="text-xs font-semibold text-muted-foreground">Location</Label>
+              <CountrySelector value={location} onValueChange={setLocation} />
             </div>
 
             <div className="space-y-2">
