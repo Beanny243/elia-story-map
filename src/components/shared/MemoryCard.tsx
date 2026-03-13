@@ -8,11 +8,12 @@ interface MemoryCardProps {
   caption: string;
   onEdit?: () => void;
   onDelete?: () => void;
+  onPhotoClick?: () => void;
 }
 
-const MemoryCard = ({ photo, location, date, caption, onEdit, onDelete }: MemoryCardProps) => (
+const MemoryCard = ({ photo, location, date, caption, onEdit, onDelete, onPhotoClick }: MemoryCardProps) => (
   <div className="bg-card rounded-2xl overflow-hidden shadow-card group relative">
-    <div className="h-48 overflow-hidden">
+    <div className="h-48 overflow-hidden cursor-pointer" onClick={onPhotoClick}>
       <img src={photo} alt={caption} className="w-full h-full object-cover" />
       <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
         {onEdit && (
