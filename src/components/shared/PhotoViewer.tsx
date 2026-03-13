@@ -22,10 +22,10 @@ const PhotoViewer = ({ src, onClose }: PhotoViewerProps) => {
     }
   }, [src]);
 
-  const getDistance = (t1: Touch, t2: Touch) =>
+  const getDistance = (t1: React.Touch, t2: React.Touch) =>
     Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 
-  const getCenter = (t1: Touch, t2: Touch) => ({
+  const getCenter = (t1: React.Touch, t2: React.Touch) => ({
     x: (t1.clientX + t2.clientX) / 2,
     y: (t1.clientY + t2.clientY) / 2,
   });
