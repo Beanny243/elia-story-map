@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Navigation, Locate } from "lucide-react";
 import mapboxgl from "mapbox-gl";
@@ -9,6 +9,7 @@ import { lineString } from "@turf/helpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TripInfoCard from "@/components/map/TripInfoCard";
+import TripFilterPanel from "@/components/map/TripFilterPanel";
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiYmVhbm55MjQzIiwiYSI6ImNtbXBiMjQzdDBvcDIycHF0NmY3ZHBxcmsifQ.xNcSuOwjYejAP-Rl1u_kwA";
 
@@ -47,11 +48,36 @@ const MapScreen = () => {
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const animFrameRef = useRef<number[]>([]);
   const { user } = useAuth();
-  const [stops, setStops] = useState<StopData[]>([]);
+  const [allStops, setAllStops] = useState<StopData[]>([]);
   const [trips, setTrips] = useState<TripMeta[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [visibleTripIds, setVisibleTripIds] = useState<Set<string>>(new Set());
   const tripColorMapRef = useRef<Map<string, string>>(new Map());
+
+  // Stable color map based on all trips (not filtered)
+  const allTripColorMap = useMemo(() => {
+    const tripIds = trips.map((t) => t.id);
+    return new Map(tripIds.map((id, i) => [id, TRIP_COLORS[i % TRIP_COLORS.length]]));
+  }, [trips]);
+
+  // Filtered stops based on visibility
+  const stops = useMemo(
+    () => allStops.filter((s) => visibleTripIds.has(s.trip_id)),
+    [allStops, visibleTripIds]
+  );
+
+  // Filter panel data
+  const filterItems = useMemo(
+    () =>
+      trips.map((t) => ({
+        id: t.id,
+        title: t.title,
+        color: allTripColorMap.get(t.id) || TRIP_COLORS[0],
+        stopCount: allStops.filter((s) => s.trip_id === t.id).length,
+      })),
+    [trips, allTripColorMap, allStops]
+  );
 
   // Fetch trip stops and trip metadata
   useEffect(() => {
@@ -65,6 +91,7 @@ const MapScreen = () => {
 
       if (!tripsData) return;
       setTrips(tripsData);
+      setVisibleTripIds(new Set(tripsData.map((t) => t.id)));
 
       const tripIds = new Set(tripsData.map((t) => t.id));
 
@@ -76,7 +103,7 @@ const MapScreen = () => {
         .order("sort_order", { ascending: true });
 
       if (stopsData) {
-        setStops(
+        setAllStops(
           stopsData
             .filter((s) => tripIds.has(s.trip_id))
             .map((s) => ({
@@ -125,24 +152,21 @@ const MapScreen = () => {
       if (!map.current?.getLayer(layerId)) return;
 
       if (activeTripId === null) {
-        // Reset all to default
         map.current.setPaintProperty(layerId, "line-width", 2.5);
         map.current.setPaintProperty(layerId, "line-opacity", 0.7);
       } else if (tripId === activeTripId) {
-        // Highlight selected
         map.current.setPaintProperty(layerId, "line-width", 5);
         map.current.setPaintProperty(layerId, "line-opacity", 1);
       } else {
-        // Dim others
         map.current.setPaintProperty(layerId, "line-width", 1.5);
         map.current.setPaintProperty(layerId, "line-opacity", 0.25);
       }
     });
   };
 
-  // Add markers and route lines
+  // Add markers and route lines (reacts to filtered stops)
   useEffect(() => {
-    if (!map.current || !mapLoaded || stops.length === 0) return;
+    if (!map.current || !mapLoaded) return;
 
     // Clean up
     markersRef.current.forEach((m) => m.remove());
@@ -153,15 +177,10 @@ const MapScreen = () => {
     const style = map.current.getStyle();
     if (style?.layers) {
       style.layers.forEach((layer) => {
-        if (layer.id.startsWith("route-line-") && map.current?.getLayer(layer.id)) {
-          map.current.removeLayer(layer.id);
-        }
-      });
-    }
-    // Also remove hit layers
-    if (style?.layers) {
-      style.layers.forEach((layer) => {
-        if (layer.id.startsWith("route-hit-") && map.current?.getLayer(layer.id)) {
+        if (
+          (layer.id.startsWith("route-line-") || layer.id.startsWith("route-hit-")) &&
+          map.current?.getLayer(layer.id)
+        ) {
           map.current.removeLayer(layer.id);
         }
       });
@@ -174,13 +193,13 @@ const MapScreen = () => {
       });
     }
 
-    const tripIds = [...new Set(stops.map((s) => s.trip_id))];
-    const colorMap = new Map(tripIds.map((id, i) => [id, TRIP_COLORS[i % TRIP_COLORS.length]]));
-    tripColorMapRef.current = colorMap;
+    if (stops.length === 0) return;
+
+    tripColorMapRef.current = allTripColorMap;
 
     // Markers
     stops.forEach((stop, index) => {
-      const color = colorMap.get(stop.trip_id) || TRIP_COLORS[0];
+      const color = allTripColorMap.get(stop.trip_id) || TRIP_COLORS[0];
       const el = document.createElement("div");
       el.className = "mapbox-custom-marker";
       el.style.opacity = "0";
@@ -217,13 +236,14 @@ const MapScreen = () => {
       setTimeout(() => {
         el.style.opacity = "1";
         el.style.transform = "scale(1) translateY(0)";
-      }, 200 + index * 100);
+      }, 100 + index * 60);
     });
 
-    // Animated route lines
+    // Route lines
+    const visibleTripIdsArr = [...new Set(stops.map((s) => s.trip_id))];
     const STEPS = 120;
 
-    tripIds.forEach((tripId, tripIndex) => {
+    visibleTripIdsArr.forEach((tripId, tripIndex) => {
       const tripStops = stops
         .filter((s) => s.trip_id === tripId)
         .sort((a, b) => a.sort_order - b.sort_order);
@@ -231,7 +251,7 @@ const MapScreen = () => {
       if (tripStops.length < 2) return;
 
       const coordinates = tripStops.map((s) => [s.longitude, s.latitude] as [number, number]);
-      const color = colorMap.get(tripId) || TRIP_COLORS[0];
+      const color = allTripColorMap.get(tripId) || TRIP_COLORS[0];
       const sourceId = `route-${tripId}`;
       const layerId = `route-line-${tripId}`;
       const hitLayerId = `route-hit-${tripId}`;
@@ -248,7 +268,6 @@ const MapScreen = () => {
         },
       });
 
-      // Visible line
       map.current!.addLayer({
         id: layerId,
         type: "line",
@@ -262,26 +281,19 @@ const MapScreen = () => {
         },
       });
 
-      // Invisible wider hit area for easier tapping
       map.current!.addLayer({
         id: hitLayerId,
         type: "line",
         source: sourceId,
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": color,
-          "line-width": 20,
-          "line-opacity": 0,
-        },
+        paint: { "line-color": color, "line-width": 20, "line-opacity": 0 },
       });
 
-      // Click handler on the hit layer
       map.current!.on("click", hitLayerId, (e) => {
         e.originalEvent.stopPropagation();
         setSelectedTripId((prev) => (prev === tripId ? null : tripId));
       });
 
-      // Pointer cursor on hover
       map.current!.on("mouseenter", hitLayerId, () => {
         if (map.current) map.current.getCanvas().style.cursor = "pointer";
       });
@@ -289,8 +301,7 @@ const MapScreen = () => {
         if (map.current) map.current.getCanvas().style.cursor = "";
       });
 
-      // Animate
-      const startDelay = 400 + tripIndex * 300;
+      const startDelay = 200 + tripIndex * 200;
       let step = 0;
 
       const animate = () => {
@@ -342,8 +353,7 @@ const MapScreen = () => {
 
     // Click on empty map to deselect
     map.current.on("click", (e) => {
-      // Check if the click hit any route hit layer
-      const hitLayers = tripIds
+      const hitLayers = visibleTripIdsArr
         .map((id) => `route-hit-${id}`)
         .filter((id) => map.current?.getLayer(id));
       const features = map.current?.queryRenderedFeatures(e.point, { layers: hitLayers });
@@ -360,7 +370,7 @@ const MapScreen = () => {
     } else {
       map.current.flyTo({ center: [stops[0].longitude, stops[0].latitude], zoom: 5 });
     }
-  }, [stops, mapLoaded]);
+  }, [stops, mapLoaded, allTripColorMap]);
 
   // Update line styles when selection changes
   useEffect(() => {
@@ -381,15 +391,33 @@ const MapScreen = () => {
     );
   };
 
-  // Build selected trip info for the card
+  const handleToggleTrip = (tripId: string) => {
+    setVisibleTripIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(tripId)) {
+        next.delete(tripId);
+        if (selectedTripId === tripId) setSelectedTripId(null);
+      } else {
+        next.add(tripId);
+      }
+      return next;
+    });
+  };
+
+  const handleShowAll = () => setVisibleTripIds(new Set(trips.map((t) => t.id)));
+  const handleHideAll = () => {
+    setVisibleTripIds(new Set());
+    setSelectedTripId(null);
+  };
+
   const selectedTripInfo = selectedTripId
     ? (() => {
         const tripMeta = trips.find((t) => t.id === selectedTripId);
         if (!tripMeta) return null;
-        const tripStops = stops.filter((s) => s.trip_id === selectedTripId);
+        const tripStops = allStops.filter((s) => s.trip_id === selectedTripId);
         return {
           ...tripMeta,
-          color: tripColorMapRef.current.get(selectedTripId) || TRIP_COLORS[0],
+          color: allTripColorMap.get(selectedTripId) || TRIP_COLORS[0],
           stopCount: tripStops.length,
         };
       })()
@@ -418,11 +446,17 @@ const MapScreen = () => {
         </div>
       </motion.div>
 
-      {/* Trip info card */}
-      <TripInfoCard
-        trip={selectedTripInfo}
-        onClose={() => setSelectedTripId(null)}
+      {/* Filter panel */}
+      <TripFilterPanel
+        trips={filterItems}
+        visibleTripIds={visibleTripIds}
+        onToggleTrip={handleToggleTrip}
+        onShowAll={handleShowAll}
+        onHideAll={handleHideAll}
       />
+
+      {/* Trip info card */}
+      <TripInfoCard trip={selectedTripInfo} onClose={() => setSelectedTripId(null)} />
 
       {/* Locate me button */}
       <motion.button
