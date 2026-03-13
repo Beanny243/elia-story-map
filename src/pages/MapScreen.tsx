@@ -62,6 +62,7 @@ const MapScreen = () => {
             latitude: s.latitude!,
             longitude: s.longitude!,
             sort_order: s.sort_order ?? 0,
+            trip_id: s.trip_id,
           }))
         );
       }
