@@ -50,6 +50,16 @@ const Memories = () => {
     });
   }, [user]);
 
+  const filteredMemories = useMemo(() => {
+    return memories.filter((m) => {
+      if (filterCountry && m.location !== filterCountry) return false;
+      if (filterTripId && m.trip_id !== filterTripId) return false;
+      return true;
+    });
+  }, [memories, filterCountry, filterTripId]);
+
+  const activeFilterCount = (filterCountry ? 1 : 0) + (filterTripId ? 1 : 0);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
