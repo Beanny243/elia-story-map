@@ -12,7 +12,7 @@ const MapScreen = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { user } = useAuth();
-  const [stops, setStops] = useState<{ city: string; country: string; latitude: number; longitude: number }[]>([]);
+  const [stops, setStops] = useState<{ city: string; country: string; latitude: number; longitude: number; sort_order: number }[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Fetch trip stops with coordinates
