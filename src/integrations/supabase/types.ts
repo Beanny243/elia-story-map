@@ -14,7 +14,219 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      itinerary_items: {
+        Row: {
+          activities: string[] | null
+          created_at: string
+          day_number: number
+          id: string
+          title: string
+          trip_id: string
+        }
+        Insert: {
+          activities?: string[] | null
+          created_at?: string
+          day_number: number
+          id?: string
+          title: string
+          trip_id: string
+        }
+        Update: {
+          activities?: string[] | null
+          created_at?: string
+          day_number?: number
+          id?: string
+          title?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itinerary_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memories: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          location: string | null
+          memory_date: string | null
+          photo_url: string | null
+          trip_id: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          memory_date?: string | null
+          photo_url?: string | null
+          trip_id?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          memory_date?: string | null
+          photo_url?: string | null
+          trip_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memories_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cities_visited: number | null
+          countries_visited: number | null
+          created_at: string
+          display_name: string | null
+          id: string
+          total_distance_km: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cities_visited?: number | null
+          countries_visited?: number | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          total_distance_km?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cities_visited?: number | null
+          countries_visited?: number | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          total_distance_km?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trip_stops: {
+        Row: {
+          arrive_date: string | null
+          city: string
+          country: string
+          created_at: string
+          depart_date: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          sort_order: number | null
+          transport_type: string | null
+          trip_id: string
+        }
+        Insert: {
+          arrive_date?: string | null
+          city: string
+          country: string
+          created_at?: string
+          depart_date?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          sort_order?: number | null
+          transport_type?: string | null
+          trip_id: string
+        }
+        Update: {
+          arrive_date?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          depart_date?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          sort_order?: number | null
+          transport_type?: string | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_stops_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          budget: string | null
+          companions: string | null
+          cover_image: string | null
+          created_at: string
+          destination: string
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string | null
+          title: string
+          travel_style: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget?: string | null
+          companions?: string | null
+          cover_image?: string | null
+          created_at?: string
+          destination: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title: string
+          travel_style?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget?: string | null
+          companions?: string | null
+          cover_image?: string | null
+          created_at?: string
+          destination?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          travel_style?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
