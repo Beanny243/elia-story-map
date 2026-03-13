@@ -60,7 +60,7 @@ const CountrySelector = ({ value, onValueChange }: CountrySelectorProps) => {
                   setSearch("");
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-secondary",
+                  "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-secondary min-h-[44px]",
                   country === value && "bg-secondary/70 font-medium"
                 )}
               >
