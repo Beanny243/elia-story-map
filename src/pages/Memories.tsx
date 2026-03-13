@@ -314,6 +314,34 @@ const Memories = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Full-screen Photo Viewer */}
+      <AnimatePresence>
+        {viewerPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+            onClick={() => setViewerPhoto(null)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white/70 hover:text-white z-10"
+              onClick={() => setViewerPhoto(null)}
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              src={viewerPhoto}
+              alt="Memory"
+              className="max-w-full max-h-full object-contain p-4"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
