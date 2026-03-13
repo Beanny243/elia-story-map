@@ -76,6 +76,10 @@ const MapScreen = () => {
   useEffect(() => {
     if (!map.current || !mapLoaded || stops.length === 0) return;
 
+    // Remove previous route layer/source if exists
+    if (map.current.getLayer("route-line")) map.current.removeLayer("route-line");
+    if (map.current.getSource("route")) map.current.removeSource("route");
+
     stops.forEach((stop) => {
       const el = document.createElement("div");
       el.className = "mapbox-custom-marker";
@@ -109,8 +113,39 @@ const MapScreen = () => {
         .addTo(map.current!);
     });
 
-    // Fit bounds if multiple stops
+    // Draw route line connecting stops in order
     if (stops.length > 1) {
+      const sortedStops = [...stops].sort((a, b) => a.sort_order - b.sort_order);
+      const coordinates = sortedStops.map((s) => [s.longitude, s.latitude]);
+
+      map.current.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates,
+          },
+        },
+      });
+
+      map.current.addLayer({
+        id: "route-line",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "hsl(18, 100%, 62%)",
+          "line-width": 2.5,
+          "line-dasharray": [2, 3],
+          "line-opacity": 0.7,
+        },
+      });
+
       const bounds = new mapboxgl.LngLatBounds();
       stops.forEach((s) => bounds.extend([s.longitude, s.latitude]));
       map.current.fitBounds(bounds, { padding: 60, maxZoom: 6 });
