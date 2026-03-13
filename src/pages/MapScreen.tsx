@@ -21,12 +21,12 @@ const MapScreen = () => {
       if (!user) return;
       const { data } = await supabase
         .from("trip_stops")
-        .select("city, country, latitude, longitude, trip_id")
+        .select("city, country, latitude, longitude, trip_id, sort_order")
         .not("latitude", "is", null)
-        .not("longitude", "is", null);
+        .not("longitude", "is", null)
+        .order("sort_order", { ascending: true });
 
       if (data) {
-        // Filter to user's trips
         const { data: trips } = await supabase
           .from("trips")
           .select("id")
@@ -40,6 +40,7 @@ const MapScreen = () => {
             country: s.country,
             latitude: s.latitude!,
             longitude: s.longitude!,
+            sort_order: s.sort_order ?? 0,
           }))
         );
       }
