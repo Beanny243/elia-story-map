@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/trips" element={<Trips />} />
               <Route path="/trips/create" element={<CreateTrip />} />
               <Route path="/trips/:id" element={<TripDetails />} />
+              <Route path="/ai-itinerary" element={<AIItinerary />} />
               <Route path="/map" element={<MapScreen />} />
               <Route path="/memories" element={<Memories />} />
               <Route path="/profile" element={<Profile />} />
