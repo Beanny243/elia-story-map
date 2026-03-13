@@ -10,6 +10,7 @@ import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { geocodeLocation } from "@/lib/geocode";
 
 const CreateTrip = () => {
   const navigate = useNavigate();
@@ -42,13 +43,28 @@ const CreateTrip = () => {
       status,
     }).select().single();
 
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Trip created!", description: `${title} has been saved.` });
-      navigate(`/trips/${data.id}`);
+      return;
     }
+
+    // Auto-create a geocoded trip stop from the destination
+    const geo = await geocodeLocation(destination);
+    if (geo) {
+      await supabase.from("trip_stops").insert({
+        trip_id: data.id,
+        city: geo.city,
+        country: geo.country,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        sort_order: 0,
+      });
+    }
+
+    setLoading(false);
+    toast({ title: "Trip created!", description: `${title} has been saved.` });
+    navigate(`/trips/${data.id}`);
   };
 
   return (
