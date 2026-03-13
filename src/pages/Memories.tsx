@@ -53,7 +53,7 @@ const Memories = () => {
   const filteredMemories = useMemo(() => {
     return memories.filter((m) => {
       if (filterCountry && m.location !== filterCountry) return false;
-      if (filterTripId && m.trip_id !== filterTripId) return false;
+      if (filterTripId && filterTripId !== "all" && m.trip_id !== filterTripId) return false;
       return true;
     });
   }, [memories, filterCountry, filterTripId]);
