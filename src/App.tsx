@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
+import AIItinerary from "./pages/AIItinerary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
