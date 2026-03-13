@@ -1,48 +1,65 @@
-import { ArrowLeft, MapPin, Calendar, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MemoryCard from "@/components/shared/MemoryCard";
+import { supabase } from "@/integrations/supabase/client";
 
 const transportIcons: Record<string, typeof Plane> = { flight: Plane, train: Train, bus: Bus, ferry: Ship };
-
-const mockStops = [
-  { city: "Rome", country: "Italy", arrive: "Jun 12", depart: "Jun 15", transport: "flight" },
-  { city: "Florence", country: "Italy", arrive: "Jun 15", depart: "Jun 18", transport: "train" },
-  { city: "Venice", country: "Italy", arrive: "Jun 18", depart: "Jun 20", transport: "train" },
-  { city: "Milan", country: "Italy", arrive: "Jun 20", depart: "Jun 22", transport: "train" },
-];
-
-const mockItinerary = [
-  { day: 1, title: "Arrival in Rome", activities: ["Check in to hotel", "Colosseum visit", "Dinner in Trastevere"] },
-  { day: 2, title: "Roman Exploration", activities: ["Vatican Museums", "St. Peter's Basilica", "Gelato tasting"] },
-  { day: 3, title: "Ancient Rome", activities: ["Roman Forum", "Pantheon", "Piazza Navona"] },
-];
 
 const TripDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [trip, setTrip] = useState<any>(null);
+  const [stops, setStops] = useState<any[]>([]);
+  const [itinerary, setItinerary] = useState<any[]>([]);
+  const [memories, setMemories] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetch = async () => {
+      const [tripRes, stopsRes, itinRes, memRes] = await Promise.all([
+        supabase.from("trips").select("*").eq("id", id).single(),
+        supabase.from("trip_stops").select("*").eq("trip_id", id).order("sort_order"),
+        supabase.from("itinerary_items").select("*").eq("trip_id", id).order("day_number"),
+        supabase.from("memories").select("*").eq("trip_id", id).order("memory_date"),
+      ]);
+      if (tripRes.data) setTrip(tripRes.data);
+      if (stopsRes.data) setStops(stopsRes.data);
+      if (itinRes.data) setItinerary(itinRes.data);
+      if (memRes.data) setMemories(memRes.data);
+    };
+    fetch();
+  }, [id]);
+
+  if (!trip) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading trip...</p>
+      </div>
+    );
+  }
+
+  const formatDate = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD";
 
   return (
     <div className="pb-8">
-      {/* Hero */}
       <div className="relative h-52">
         <img
-          src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800&q=80"
+          src={trip.cover_image || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800&q=80"}
           alt="Trip cover"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute top-10 left-4 p-2 rounded-xl bg-card/80 backdrop-blur-sm"
-        >
+        <button onClick={() => navigate(-1)} className="absolute top-10 left-4 p-2 rounded-xl bg-card/80 backdrop-blur-sm">
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="absolute bottom-4 left-5 right-5">
-          <h1 className="text-2xl font-display font-bold text-foreground">Italian Summer</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">{trip.title}</h1>
           <p className="text-sm text-muted-foreground flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-accent" /> Italy • Jun 12–22, 2025
+            <MapPin className="h-3.5 w-3.5 text-accent" /> {trip.destination} • {formatDate(trip.start_date)}–{formatDate(trip.end_date)}
           </p>
         </div>
       </div>
@@ -56,63 +73,66 @@ const TripDetails = () => {
           </TabsList>
 
           <TabsContent value="stops" className="mt-4 space-y-2">
-            {mockStops.map((stop, i) => {
-              const TransportIcon = transportIcons[stop.transport] || Plane;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3"
-                >
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <TransportIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">{stop.city}</p>
-                    <p className="text-[11px] text-muted-foreground">{stop.country} • {stop.arrive} → {stop.depart}</p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </motion.div>
-              );
-            })}
+            {stops.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No stops added yet.</p>
+            ) : (
+              stops.map((stop, i) => {
+                const TransportIcon = transportIcons[stop.transport_type] || Plane;
+                return (
+                  <motion.div key={stop.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
+                    className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <TransportIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">{stop.city}</p>
+                      <p className="text-[11px] text-muted-foreground">{stop.country} • {formatDate(stop.arrive_date)} → {formatDate(stop.depart_date)}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </motion.div>
+                );
+              })
+            )}
           </TabsContent>
 
           <TabsContent value="itinerary" className="mt-4 space-y-3">
-            {mockItinerary.map((day, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-xl p-4 shadow-card space-y-2"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    Day {day.day}
-                  </span>
-                  <span className="text-sm font-semibold text-foreground">{day.title}</span>
-                </div>
-                <ul className="space-y-1">
-                  {day.activities.map((a, j) => (
-                    <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <div className="h-1 w-1 rounded-full bg-accent" />
-                      {a}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+            {itinerary.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No itinerary items yet.</p>
+            ) : (
+              itinerary.map((day, i) => (
+                <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                  className="bg-card rounded-xl p-4 shadow-card space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">Day {day.day_number}</span>
+                    <span className="text-sm font-semibold text-foreground">{day.title}</span>
+                  </div>
+                  <ul className="space-y-1">
+                    {(day.activities || []).map((a: string, j: number) => (
+                      <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <div className="h-1 w-1 rounded-full bg-accent" />
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))
+            )}
           </TabsContent>
 
           <TabsContent value="memories" className="mt-4 space-y-3">
-            <MemoryCard
-              photo="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=600&q=80"
-              location="Amalfi Coast"
-              date="Jun 18"
-              caption="Stunning views from the cliffside 🇮🇹"
-            />
+            {memories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No memories for this trip yet.</p>
+            ) : (
+              memories.map((m) => (
+                <MemoryCard
+                  key={m.id}
+                  photo={m.photo_url || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80"}
+                  location={m.location || "Unknown"}
+                  date={m.memory_date ? new Date(m.memory_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                  caption={m.caption || ""}
+                />
+              ))
+            )}
           </TabsContent>
         </Tabs>
       </div>
