@@ -1,4 +1,4 @@
-import { Upload, X, Camera, MapPin, Calendar, MessageSquare, Loader2 } from "lucide-react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
