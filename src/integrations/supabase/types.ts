@@ -99,7 +99,11 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          interests: string[] | null
+          onboarding_completed: boolean
           total_distance_km: number | null
+          travel_style: string | null
+          trip_frequency: string | null
           updated_at: string
           user_id: string
         }
@@ -111,7 +115,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          interests?: string[] | null
+          onboarding_completed?: boolean
           total_distance_km?: number | null
+          travel_style?: string | null
+          trip_frequency?: string | null
           updated_at?: string
           user_id: string
         }
@@ -123,7 +131,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          interests?: string[] | null
+          onboarding_completed?: boolean
           total_distance_km?: number | null
+          travel_style?: string | null
+          trip_frequency?: string | null
           updated_at?: string
           user_id?: string
         }
