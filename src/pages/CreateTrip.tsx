@@ -94,7 +94,7 @@ const CreateTrip = () => {
           <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5" /> Destination
           </Label>
-          <Input placeholder="e.g. Rome, Italy" className="rounded-xl bg-card" value={destination} onChange={(e) => setDestination(e.target.value)} />
+          <CountrySelector value={destination} onValueChange={setDestination} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
