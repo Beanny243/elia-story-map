@@ -8,11 +8,32 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiYmVhbm55MjQzIiwiYSI6ImNtbXBiMjQzdDBvcDIycHF0NmY3ZHBxcmsifQ.xNcSuOwjYejAP-Rl1u_kwA";
 
+const TRIP_COLORS = [
+  "hsl(18, 100%, 62%)",   // orange (accent)
+  "hsl(210, 100%, 60%)",  // blue
+  "hsl(150, 70%, 50%)",   // green
+  "hsl(280, 80%, 65%)",   // purple
+  "hsl(45, 100%, 55%)",   // gold
+  "hsl(340, 85%, 60%)",   // pink
+  "hsl(180, 70%, 50%)",   // teal
+  "hsl(0, 80%, 60%)",     // red
+];
+
+interface StopData {
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  sort_order: number;
+  trip_id: string;
+}
+
 const MapScreen = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const { user } = useAuth();
-  const [stops, setStops] = useState<{ city: string; country: string; latitude: number; longitude: number; sort_order: number }[]>([]);
+  const [stops, setStops] = useState<StopData[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Fetch trip stops with coordinates
