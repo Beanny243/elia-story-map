@@ -18,6 +18,7 @@ const Memories = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [memories, setMemories] = useState<any[]>([]);
+  const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
   const [trips, setTrips] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
