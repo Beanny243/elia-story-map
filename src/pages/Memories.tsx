@@ -1,5 +1,5 @@
-import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter } from "lucide-react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
