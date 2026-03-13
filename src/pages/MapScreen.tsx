@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Navigation, Locate } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import along from "@turf/along";
+import turfLength from "@turf/length";
+import { lineString } from "@turf/helpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -32,6 +35,7 @@ const MapScreen = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const animFrameRef = useRef<number[]>([]);
   const { user } = useAuth();
   const [stops, setStops] = useState<StopData[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -102,6 +106,10 @@ const MapScreen = () => {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
+    // Cancel previous animations
+    animFrameRef.current.forEach((id) => cancelAnimationFrame(id));
+    animFrameRef.current = [];
+
     // Clean up previous route layers/sources
     const style = map.current.getStyle();
     if (style?.layers) {
@@ -123,11 +131,14 @@ const MapScreen = () => {
     const tripIds = [...new Set(stops.map((s) => s.trip_id))];
     const tripColorMap = new Map(tripIds.map((id, i) => [id, TRIP_COLORS[i % TRIP_COLORS.length]]));
 
-    // Add markers with per-trip colors
-    stops.forEach((stop) => {
+    // Add markers with per-trip colors (fade in with stagger)
+    stops.forEach((stop, index) => {
       const color = tripColorMap.get(stop.trip_id) || TRIP_COLORS[0];
       const el = document.createElement("div");
       el.className = "mapbox-custom-marker";
+      el.style.opacity = "0";
+      el.style.transform = "scale(0.5) translateY(10px)";
+      el.style.transition = "opacity 0.4s ease-out, transform 0.4s ease-out";
       el.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
           <div style="
@@ -155,27 +166,40 @@ const MapScreen = () => {
         )
         .addTo(map.current!);
       markersRef.current.push(marker);
+
+      // Staggered fade-in
+      setTimeout(() => {
+        el.style.opacity = "1";
+        el.style.transform = "scale(1) translateY(0)";
+      }, 200 + index * 100);
     });
 
-    // Draw per-trip route lines
-    tripIds.forEach((tripId) => {
+    // Animate per-trip route lines
+    const ANIMATION_DURATION = 2000; // ms
+    const STEPS = 120;
+
+    tripIds.forEach((tripId, tripIndex) => {
       const tripStops = stops
         .filter((s) => s.trip_id === tripId)
         .sort((a, b) => a.sort_order - b.sort_order);
 
       if (tripStops.length < 2) return;
 
-      const coordinates = tripStops.map((s) => [s.longitude, s.latitude]);
+      const coordinates = tripStops.map((s) => [s.longitude, s.latitude] as [number, number]);
       const color = tripColorMap.get(tripId) || TRIP_COLORS[0];
       const sourceId = `route-${tripId}`;
       const layerId = `route-line-${tripId}`;
 
+      const fullLine = lineString(coordinates);
+      const totalLength = turfLength(fullLine, { units: "kilometers" });
+
+      // Start with empty line (first point only)
       map.current!.addSource(sourceId, {
         type: "geojson",
         data: {
           type: "Feature",
           properties: {},
-          geometry: { type: "LineString", coordinates },
+          geometry: { type: "LineString", coordinates: [coordinates[0], coordinates[0]] },
         },
       });
 
@@ -191,6 +215,59 @@ const MapScreen = () => {
           "line-opacity": 0.7,
         },
       });
+
+      // Animate after a stagger delay per trip
+      const startDelay = 400 + tripIndex * 300;
+      let step = 0;
+
+      const animate = () => {
+        step++;
+        const progress = Math.min(step / STEPS, 1);
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentLength = eased * totalLength;
+
+        // Build partial line
+        const partialCoords: [number, number][] = [coordinates[0]];
+        let accumulated = 0;
+
+        for (let i = 1; i < coordinates.length; i++) {
+          const segLine = lineString([coordinates[i - 1], coordinates[i]]);
+          const segLength = turfLength(segLine, { units: "kilometers" });
+
+          if (accumulated + segLength <= currentLength) {
+            partialCoords.push(coordinates[i]);
+            accumulated += segLength;
+          } else {
+            // Interpolate along this segment
+            const remaining = currentLength - accumulated;
+            if (remaining > 0) {
+              const point = along(segLine, remaining, { units: "kilometers" });
+              partialCoords.push(point.geometry.coordinates as [number, number]);
+            }
+            break;
+          }
+        }
+
+        const source = map.current?.getSource(sourceId) as mapboxgl.GeoJSONSource;
+        if (source && partialCoords.length >= 2) {
+          source.setData({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: partialCoords },
+          });
+        }
+
+        if (progress < 1) {
+          const id = requestAnimationFrame(animate);
+          animFrameRef.current.push(id);
+        }
+      };
+
+      setTimeout(() => {
+        const id = requestAnimationFrame(animate);
+        animFrameRef.current.push(id);
+      }, startDelay);
     });
 
     // Fit bounds
