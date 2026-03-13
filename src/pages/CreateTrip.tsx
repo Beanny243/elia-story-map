@@ -1,4 +1,5 @@
 import { ArrowLeft, Sparkles, Calendar, DollarSign, Users, MapPin, Plane } from "lucide-react";
+import CountrySelector from "@/components/shared/CountrySelector";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
