@@ -1,4 +1,4 @@
-import { Upload, X, Camera, MapPin, Calendar, MessageSquare, Loader2 } from "lucide-react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import CountrySelector from "@/components/shared/CountrySelector";
 import MemoryCard from "@/components/shared/MemoryCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -177,15 +178,8 @@ const Memories = () => {
             )}
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5" /> Location
-              </Label>
-              <Input
-                placeholder="e.g. Bali, Indonesia"
-                className="rounded-xl bg-card"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+              <Label className="text-xs font-semibold text-muted-foreground">Location</Label>
+              <CountrySelector value={location} onValueChange={setLocation} />
             </div>
 
             <div className="space-y-2">
