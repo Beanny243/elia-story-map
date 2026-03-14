@@ -1,4 +1,5 @@
 import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart } from "lucide-react";
+import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -133,12 +134,15 @@ const Index = () => {
 
   return (
     <div className="px-5 pt-12 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
-        <p className="text-sm text-muted-foreground font-medium">{greeting()} 👋</p>
-        <h1 className="text-2xl font-display font-bold text-foreground">
-          Welcome{profile?.display_name ? `, ${profile.display_name}` : " to Eliamap"}
-        </h1>
-        <p className="text-xs text-muted-foreground italic">Every journey becomes a story.</p>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground font-medium">{greeting()} 👋</p>
+          <h1 className="text-2xl font-display font-bold text-foreground">
+            Welcome{profile?.display_name ? `, ${profile.display_name}` : " to Eliamap"}
+          </h1>
+          <p className="text-xs text-muted-foreground italic">Every journey becomes a story.</p>
+        </div>
+        <NotificationCenter />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}>
