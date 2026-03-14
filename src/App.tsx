@@ -58,6 +58,7 @@ const App = () => (
               <Route path="/memories" element={<Memories />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/subscription" element={<Subscription />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
