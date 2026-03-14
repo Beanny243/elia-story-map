@@ -3,14 +3,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import MemoryCard from "@/components/shared/MemoryCard";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+const statusConfig: Record<string, { label: string; className: string }> = {
+  draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
+  active: { label: "Active", className: "bg-accent text-accent-foreground" },
+  completed: { label: "Completed", className: "bg-primary text-primary-foreground" },
+};
 
 const transportIcons: Record<string, typeof Plane> = { flight: Plane, train: Train, bus: Bus, ferry: Ship };
 
 const TripDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
   const [trip, setTrip] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [itinerary, setItinerary] = useState<any[]>([]);
@@ -62,6 +72,32 @@ const TripDetails = () => {
             <MapPin className="h-3.5 w-3.5 text-accent" /> {trip.destination} • {formatDate(trip.start_date)}–{formatDate(trip.end_date)}
           </p>
         </div>
+      </div>
+
+      <div className="px-5 pt-3">
+        <Select
+          value={trip.status || "draft"}
+          onValueChange={async (val) => {
+            const { error } = await supabase.from("trips").update({ status: val }).eq("id", id);
+            if (error) {
+              toast({ title: "Error", description: error.message, variant: "destructive" });
+            } else {
+              setTrip((prev: any) => ({ ...prev, status: val }));
+              toast({ title: "Status updated", description: `Trip marked as ${statusConfig[val]?.label || val}.` });
+            }
+          }}
+        >
+          <SelectTrigger className="w-fit rounded-xl gap-2 h-8 text-xs border-0 bg-card/80 px-3">
+            <Badge className={`text-[10px] font-bold border-0 ${statusConfig[trip.status || "draft"]?.className}`}>
+              {statusConfig[trip.status || "draft"]?.label || "Draft"}
+            </Badge>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">📝 Draft</SelectItem>
+            <SelectItem value="active">✈️ Active</SelectItem>
+            <SelectItem value="completed">✅ Completed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="px-5 pt-4">
