@@ -1,4 +1,5 @@
 import { Plus, Search } from "lucide-react";
+import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -101,7 +102,7 @@ const Trips = () => {
                 id={trip.id}
                 title={trip.title}
                 destination={trip.destination}
-                coverImage={trip.cover_image || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80"}
+                coverImage={trip.cover_image || getCoverImageForDestination(trip.destination)}
                 startDate={trip.start_date ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 endDate={trip.end_date ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 stops={stopCounts[trip.id] || 0}
