@@ -123,6 +123,48 @@ const Subscription = () => {
 
       {/* Plans */}
       <div className="space-y-4">
+        {/* Free tier */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className={`relative p-5 rounded-2xl border-2 transition-all ${
+            !subscription.subscribed
+              ? "border-primary bg-primary/5 shadow-lg"
+              : "border-border bg-card"
+          }`}
+        >
+          {!subscription.subscribed && (
+            <span className="absolute -top-2.5 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full uppercase tracking-wider">
+              Your Plan
+            </span>
+          )}
+          <div className="flex items-baseline gap-1 mb-3">
+            <span className="text-2xl font-display font-bold text-foreground">$0</span>
+            <span className="text-sm text-muted-foreground">/forever</span>
+          </div>
+          <ul className="space-y-2 mb-4">
+            {[
+              `Up to ${FREE_LIMITS.maxTrips} trips`,
+              `Up to ${FREE_LIMITS.maxMemories} memories`,
+            ].map((feat) => (
+              <li key={feat} className="flex items-start gap-2 text-sm text-foreground">
+                <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                {feat}
+              </li>
+            ))}
+            {["AI itinerary generation", "Interactive map"].map((feat) => (
+              <li key={feat} className="flex items-start gap-2 text-sm text-muted-foreground line-through">
+                <X className="h-4 w-4 text-muted-foreground/50 mt-0.5 shrink-0" />
+                {feat}
+              </li>
+            ))}
+          </ul>
+          <Button variant="outline" disabled className="w-full">
+            {!subscription.subscribed ? "Current Plan" : "Free Plan"}
+          </Button>
+        </motion.div>
+
         {(Object.entries(SUBSCRIPTION_TIERS) as [TierKey, typeof SUBSCRIPTION_TIERS[TierKey]][]).map(
           ([key, tier], idx) => {
             const isActive = activeTier === key;
