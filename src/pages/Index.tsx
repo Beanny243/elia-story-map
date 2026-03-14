@@ -9,6 +9,7 @@ import MemoryCard from "@/components/shared/MemoryCard";
 import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getCoverImageForDestination } from "@/lib/cover-images";
 
 type Suggestion = { title: string; description: string; emoji: string; action?: string };
 
