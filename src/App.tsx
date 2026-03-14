@@ -12,6 +12,7 @@ import TripDetails from "./pages/TripDetails";
 import MapScreen from "./pages/MapScreen";
 import Memories from "./pages/Memories";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
