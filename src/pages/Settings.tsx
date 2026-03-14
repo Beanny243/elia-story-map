@@ -159,6 +159,44 @@ const Settings = () => {
         </div>
       </motion.div>
 
+      {/* Push Notifications */}
+      {pushSupported && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
+          <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-3">
+              {pushEnabled ? (
+                <Bell className="h-4 w-4 text-primary" />
+              ) : (
+                <BellOff className="h-4 w-4 text-muted-foreground" />
+              )}
+              <div>
+                <p className="text-sm font-medium text-foreground">Push Notifications</p>
+                <p className="text-xs text-muted-foreground">
+                  {permission === "denied"
+                    ? "Blocked in browser settings"
+                    : "Get alerts for upcoming trips"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={pushEnabled}
+              disabled={pushLoading || permission === "denied"}
+              onCheckedChange={async (checked) => {
+                if (checked) {
+                  const ok = await enablePush();
+                  if (ok) toast({ title: "Push notifications enabled! 🔔" });
+                  else if (permission === "denied") toast({ title: "Notifications blocked", description: "Enable in your browser settings", variant: "destructive" });
+                } else {
+                  await disablePush();
+                  toast({ title: "Push notifications disabled" });
+                }
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
+
       {/* Actions */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-3 pt-2">
         <Button onClick={handleSave} disabled={loading} className="w-full gap-2">
