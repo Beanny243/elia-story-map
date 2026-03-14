@@ -161,58 +161,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get all trips with upcoming start dates (next 7 days)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const weekFromNow = new Date(today);
     weekFromNow.setDate(weekFromNow.getDate() + 7);
 
-    const { data: trips } = await supabaseAdmin
-      .from("trips")
-      .select("id, title, destination, start_date, user_id")
-      .gte("start_date", today.toISOString().split("T")[0])
-      .lte("start_date", weekFromNow.toISOString().split("T")[0]);
-
-    if (!trips || trips.length === 0) {
-      return new Response(JSON.stringify({ message: "No upcoming trips", sent: 0 }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     let totalSent = 0;
     const expiredEndpoints: string[] = [];
 
-    for (const trip of trips) {
-      const startDate = new Date(trip.start_date!);
-      startDate.setHours(0, 0, 0, 0);
-      const daysUntil = Math.round(
-        (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      // Get push subscriptions for this user
+    // Helper to send push to a user
+    async function sendToUser(userId: string, payload: object) {
       const { data: subscriptions } = await supabaseAdmin
         .from("push_subscriptions")
         .select("*")
-        .eq("user_id", trip.user_id);
+        .eq("user_id", userId);
 
-      if (!subscriptions || subscriptions.length === 0) continue;
-
-      const title =
-        daysUntil === 0
-          ? `${trip.title} starts today! 🎉`
-          : `${trip.title} in ${daysUntil} day${daysUntil === 1 ? "" : "s"} ✈️`;
-
-      const message =
-        daysUntil === 0
-          ? `Your adventure to ${trip.destination} begins now!`
-          : `Get ready for your trip to ${trip.destination}!`;
-
-      const payload = {
-        title,
-        body: message,
-        icon: "/favicon.ico",
-        data: { url: `/trips/${trip.id}` },
-      };
+      if (!subscriptions || subscriptions.length === 0) return;
 
       for (const sub of subscriptions) {
         const success = await sendPushNotification(
@@ -221,22 +185,87 @@ Deno.serve(async (req) => {
           vapidData.public_key,
           vapidData.private_key
         );
-
-        if (success) {
-          totalSent++;
-        } else {
-          expiredEndpoints.push(sub.endpoint);
-        }
+        if (success) totalSent++;
+        else expiredEndpoints.push(sub.endpoint);
       }
+    }
 
-      // Also create in-app notification
-      await supabaseAdmin.from("notifications").insert({
-        user_id: trip.user_id,
-        type: "trip_countdown",
-        title,
-        message,
-        related_trip_id: trip.id,
-      });
+    // --- Trip countdowns ---
+    const { data: trips } = await supabaseAdmin
+      .from("trips")
+      .select("id, title, destination, start_date, user_id")
+      .gte("start_date", today.toISOString().split("T")[0])
+      .lte("start_date", weekFromNow.toISOString().split("T")[0]);
+
+    if (trips && trips.length > 0) {
+      for (const trip of trips) {
+        const startDate = new Date(trip.start_date!);
+        startDate.setHours(0, 0, 0, 0);
+        const daysUntil = Math.round(
+          (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        const title =
+          daysUntil === 0
+            ? `${trip.title} starts today! 🎉`
+            : `${trip.title} in ${daysUntil} day${daysUntil === 1 ? "" : "s"} ✈️`;
+        const message =
+          daysUntil === 0
+            ? `Your adventure to ${trip.destination} begins now!`
+            : `Get ready for your trip to ${trip.destination}!`;
+
+        await sendToUser(trip.user_id, {
+          title,
+          body: message,
+          icon: "/favicon.ico",
+          data: { url: `/trips/${trip.id}` },
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: trip.user_id,
+          type: "trip_countdown",
+          title,
+          message,
+          related_trip_id: trip.id,
+        });
+      }
+    }
+
+    // --- Memory anniversaries ---
+    const { data: memories } = await supabaseAdmin
+      .from("memories")
+      .select("id, caption, location, memory_date, user_id");
+
+    if (memories && memories.length > 0) {
+      for (const memory of memories) {
+        if (!memory.memory_date) continue;
+        const memDate = new Date(memory.memory_date);
+        const isAnniversary =
+          memDate.getMonth() === today.getMonth() &&
+          memDate.getDate() === today.getDate() &&
+          memDate.getFullYear() !== today.getFullYear();
+
+        if (!isAnniversary) continue;
+
+        const years = today.getFullYear() - memDate.getFullYear();
+        const title = `Memory from ${years} year${years === 1 ? "" : "s"} ago 📸`;
+        const message = `Remember "${memory.caption || "your memory"}" in ${memory.location || "your trip"}?`;
+
+        await sendToUser(memory.user_id, {
+          title,
+          body: message,
+          icon: "/favicon.ico",
+          data: { url: `/memories` },
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: memory.user_id,
+          type: "memory_anniversary",
+          title,
+          message,
+          related_memory_id: memory.id,
+        });
+      }
     }
 
     // Clean up expired subscriptions
