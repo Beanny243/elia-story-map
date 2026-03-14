@@ -426,6 +426,17 @@ const MapScreen = () => {
       })()
     : null;
 
+  if (!canUseMap) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <UpgradePrompt
+          feature="Map is a Premium Feature"
+          description="Upgrade to visualize all your trips on an interactive world map."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-screen">
       <div ref={mapContainer} className="absolute inset-0" />
