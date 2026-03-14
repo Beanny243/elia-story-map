@@ -105,6 +105,7 @@ const Trips = () => {
                 startDate={trip.start_date ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 endDate={trip.end_date ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 stops={stopCounts[trip.id] || 0}
+                status={trip.status || "draft"}
                 onEdit={() => navigate(`/trips/${trip.id}/edit`)}
                 onDelete={() => { setTripToDelete(trip.id); setDeleteDialogOpen(true); }}
               />

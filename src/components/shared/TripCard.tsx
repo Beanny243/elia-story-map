@@ -33,6 +33,11 @@ const TripCard = ({ id, title, destination, coverImage, startDate, endDate, stop
         <div className="h-36 relative overflow-hidden">
           <img src={coverImage} alt={title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+          {status && statusConfig[status] && (
+            <Badge className={`absolute top-2.5 left-2.5 text-[10px] font-bold border-0 ${statusConfig[status].className}`}>
+              {statusConfig[status].label}
+            </Badge>
+          )}
           <div className="absolute bottom-3 left-3 right-3">
             <h3 className="text-primary-foreground font-display font-bold text-lg leading-tight">{title}</h3>
           </div>
