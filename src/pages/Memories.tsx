@@ -20,6 +20,8 @@ import { useSubscriptionGate, FREE_LIMITS } from "@/hooks/useSubscriptionGate";
 const Memories = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { isPremium, maxMemories } = useSubscriptionGate();
   const [memories, setMemories] = useState<any[]>([]);
   const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
   const [trips, setTrips] = useState<any[]>([]);
