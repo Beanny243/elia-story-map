@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TripInfoCard from "@/components/map/TripInfoCard";
 import TripFilterPanel from "@/components/map/TripFilterPanel";
+import UpgradePrompt from "@/components/shared/UpgradePrompt";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiYmVhbm55MjQzIiwiYSI6ImNtbXBiMjQzdDBvcDIycHF0NmY3ZHBxcmsifQ.xNcSuOwjYejAP-Rl1u_kwA";
 
@@ -43,6 +45,7 @@ interface TripMeta {
 }
 
 const MapScreen = () => {
+  const { canUseMap } = useSubscriptionGate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -422,6 +425,17 @@ const MapScreen = () => {
         };
       })()
     : null;
+
+  if (!canUseMap) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <UpgradePrompt
+          feature="Map is a Premium Feature"
+          description="Upgrade to visualize all your trips on an interactive world map."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-screen">

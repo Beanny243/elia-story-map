@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Crown } from "lucide-react";
 import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -10,11 +10,13 @@ import TripCard from "@/components/shared/TripCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate, FREE_LIMITS } from "@/hooks/useSubscriptionGate";
 
 const Trips = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium, maxTrips } = useSubscriptionGate();
   const [trips, setTrips] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [stopCounts, setStopCounts] = useState<Record<string, number>>({});
@@ -79,8 +81,28 @@ const Trips = () => {
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <Button onClick={() => navigate("/trips/create")} className="w-full rounded-xl gap-2 bg-primary text-primary-foreground">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-2">
+        {!isPremium && (
+          <div className="flex items-center justify-between px-1">
+            <p className="text-xs text-muted-foreground">
+              {trips.length}/{FREE_LIMITS.maxTrips} free trips used
+            </p>
+            <button onClick={() => navigate("/subscription")} className="text-xs text-primary font-semibold flex items-center gap-1">
+              <Crown className="h-3 w-3" /> Upgrade
+            </button>
+          </div>
+        )}
+        <Button
+          onClick={() => {
+            if (!isPremium && trips.length >= maxTrips) {
+              toast({ title: "Trip limit reached", description: `Free plan allows ${FREE_LIMITS.maxTrips} trips. Upgrade to create more!`, variant: "destructive" });
+              navigate("/subscription");
+              return;
+            }
+            navigate("/trips/create");
+          }}
+          className="w-full rounded-xl gap-2 bg-primary text-primary-foreground"
+        >
           <Plus className="h-4 w-4" /> Create New Trip
         </Button>
       </motion.div>

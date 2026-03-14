@@ -1,6 +1,7 @@
-import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter } from "lucide-react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter, Crown } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import PhotoViewer from "@/components/shared/PhotoViewer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,10 +15,13 @@ import MemoryCard from "@/components/shared/MemoryCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate, FREE_LIMITS } from "@/hooks/useSubscriptionGate";
 
 const Memories = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { isPremium, maxMemories } = useSubscriptionGate();
   const [memories, setMemories] = useState<any[]>([]);
   const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
   const [trips, setTrips] = useState<any[]>([]);
@@ -178,26 +182,46 @@ const Memories = () => {
         <p className="text-sm text-muted-foreground">Your travel timeline</p>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="flex gap-2">
-        <Button
-          onClick={() => { resetForm(); setOpen(true); }}
-          className="flex-1 rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
-        >
-          <Upload className="h-4 w-4" /> Add Memory
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-xl relative shrink-0"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <Filter className="h-4 w-4" />
-          {activeFilterCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-        </Button>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-2">
+        {!isPremium && (
+          <div className="flex items-center justify-between px-1">
+            <p className="text-xs text-muted-foreground">
+              {memories.length}/{FREE_LIMITS.maxMemories} free memories used
+            </p>
+            <button onClick={() => navigate("/subscription")} className="text-xs text-primary font-semibold flex items-center gap-1">
+              <Crown className="h-3 w-3" /> Upgrade
+            </button>
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              if (!isPremium && memories.length >= maxMemories) {
+                toast({ title: "Memory limit reached", description: `Free plan allows ${FREE_LIMITS.maxMemories} memories. Upgrade to save more!`, variant: "destructive" });
+                navigate("/subscription");
+                return;
+              }
+              resetForm();
+              setOpen(true);
+            }}
+            className="flex-1 rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+          >
+            <Upload className="h-4 w-4" /> Add Memory
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-xl relative shrink-0"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="h-4 w-4" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        </div>
       </motion.div>
 
       <AnimatePresence>
