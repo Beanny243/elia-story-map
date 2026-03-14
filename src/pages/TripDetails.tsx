@@ -74,7 +74,31 @@ const TripDetails = () => {
         </div>
       </div>
 
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-3">
+        <Select
+          value={trip.status || "draft"}
+          onValueChange={async (val) => {
+            const { error } = await supabase.from("trips").update({ status: val }).eq("id", id);
+            if (error) {
+              toast({ title: "Error", description: error.message, variant: "destructive" });
+            } else {
+              setTrip((prev: any) => ({ ...prev, status: val }));
+              toast({ title: "Status updated", description: `Trip marked as ${statusConfig[val]?.label || val}.` });
+            }
+          }}
+        >
+          <SelectTrigger className="w-fit rounded-xl gap-2 h-8 text-xs border-0 bg-card/80 px-3">
+            <Badge className={`text-[10px] font-bold border-0 ${statusConfig[trip.status || "draft"]?.className}`}>
+              {statusConfig[trip.status || "draft"]?.label || "Draft"}
+            </Badge>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">📝 Draft</SelectItem>
+            <SelectItem value="active">✈️ Active</SelectItem>
+            <SelectItem value="completed">✅ Completed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
         <Tabs defaultValue="stops">
           <TabsList className="w-full bg-secondary rounded-xl">
             <TabsTrigger value="stops" className="flex-1 rounded-lg text-xs">Stops</TabsTrigger>
