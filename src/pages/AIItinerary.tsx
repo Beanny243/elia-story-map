@@ -7,9 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EliMascot from "@/components/shared/EliMascot";
+import UpgradePrompt from "@/components/shared/UpgradePrompt";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 type ItineraryDay = { day_number: number; title: string; activities: string[] };
 
