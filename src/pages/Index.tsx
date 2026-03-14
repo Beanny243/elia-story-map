@@ -61,6 +61,7 @@ const FREQUENCY_MESSAGES: Record<string, string> = {
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isPremium } = useSubscriptionGate();
   const [profile, setProfile] = useState<any>(null);
   const [trips, setTrips] = useState<any[]>([]);
   const [memories, setMemories] = useState<any[]>([]);
