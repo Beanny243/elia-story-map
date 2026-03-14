@@ -1,6 +1,7 @@
-import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter } from "lucide-react";
+import { Upload, X, Camera, Calendar, MessageSquare, Loader2, Trash2, Filter, Crown } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import PhotoViewer from "@/components/shared/PhotoViewer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import MemoryCard from "@/components/shared/MemoryCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate, FREE_LIMITS } from "@/hooks/useSubscriptionGate";
 
 const Memories = () => {
   const { user } = useAuth();
