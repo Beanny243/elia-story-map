@@ -1,5 +1,12 @@
 import { MapPin, Calendar, Navigation, Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+
+const statusConfig: Record<string, { label: string; className: string }> = {
+  draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
+  active: { label: "Active", className: "bg-accent text-accent-foreground" },
+  completed: { label: "Completed", className: "bg-primary text-primary-foreground" },
+};
 
 interface TripCardProps {
   id: string;
@@ -9,6 +16,10 @@ interface TripCardProps {
   startDate: string;
   endDate: string;
   stops: number;
+  status?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}
   onEdit?: () => void;
   onDelete?: () => void;
 }
