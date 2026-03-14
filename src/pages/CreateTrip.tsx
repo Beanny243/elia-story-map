@@ -1,7 +1,7 @@
-import { ArrowLeft, Sparkles, Calendar, DollarSign, Users, MapPin, Plane } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, DollarSign, Users, MapPin, Plane, Loader2 } from "lucide-react";
 import CountrySelector from "@/components/shared/CountrySelector";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ import { geocodeLocation } from "@/lib/geocode";
 
 const CreateTrip = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
   const { user } = useAuth();
   const { toast } = useToast();
   const [title, setTitle] = useState("");
@@ -25,6 +27,24 @@ const CreateTrip = () => {
   const [budget, setBudget] = useState("");
   const [companions, setCompanions] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id || !user) return;
+    setInitialLoading(true);
+    supabase.from("trips").select("*").eq("id", id).eq("user_id", user.id).single().then(({ data }) => {
+      if (data) {
+        setTitle(data.title);
+        setDestination(data.destination);
+        setStartDate(data.start_date || "");
+        setEndDate(data.end_date || "");
+        setTravelStyle(data.travel_style || "");
+        setBudget(data.budget || "");
+        setCompanions(data.companions || "");
+      }
+      setInitialLoading(false);
+    });
+  }, [id, user]);
 
   const handleSave = async (status: string = "draft") => {
     if (!user || !title || !destination) {
@@ -32,8 +52,8 @@ const CreateTrip = () => {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase.from("trips").insert({
-      user_id: user.id,
+
+    const payload = {
       title,
       destination,
       start_date: startDate || null,
@@ -42,31 +62,54 @@ const CreateTrip = () => {
       budget: budget || null,
       companions: companions || null,
       status,
-    }).select().single();
+    };
 
-    if (error) {
+    if (isEditing && id) {
+      const { error } = await supabase.from("trips").update(payload).eq("id", id);
       setLoading(false);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
-    }
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Trip updated! ✏️", description: `${title} has been saved.` });
+      navigate(`/trips/${id}`);
+    } else {
+      const { data, error } = await supabase.from("trips").insert({
+        ...payload,
+        user_id: user.id,
+      }).select().single();
 
-    // Auto-create a geocoded trip stop from the destination
-    const geo = await geocodeLocation(destination);
-    if (geo) {
-      await supabase.from("trip_stops").insert({
-        trip_id: data.id,
-        city: geo.city,
-        country: geo.country,
-        latitude: geo.latitude,
-        longitude: geo.longitude,
-        sort_order: 0,
-      });
-    }
+      if (error) {
+        setLoading(false);
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
 
-    setLoading(false);
-    toast({ title: "Trip created!", description: `${title} has been saved.` });
-    navigate(`/trips/${data.id}`);
+      const geo = await geocodeLocation(destination);
+      if (geo) {
+        await supabase.from("trip_stops").insert({
+          trip_id: data.id,
+          city: geo.city,
+          country: geo.country,
+          latitude: geo.latitude,
+          longitude: geo.longitude,
+          sort_order: 0,
+        });
+      }
+
+      setLoading(false);
+      toast({ title: "Trip created!", description: `${title} has been saved.` });
+      navigate(`/trips/${data.id}`);
+    }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="px-5 pt-10 space-y-5 pb-8">
@@ -75,12 +118,12 @@ const CreateTrip = () => {
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <div>
-          <h1 className="text-xl font-display font-bold text-foreground">Create Trip</h1>
-          <p className="text-xs text-muted-foreground">Plan your next adventure</p>
+          <h1 className="text-xl font-display font-bold text-foreground">{isEditing ? "Edit Trip" : "Create Trip"}</h1>
+          <p className="text-xs text-muted-foreground">{isEditing ? "Update your adventure" : "Plan your next adventure"}</p>
         </div>
       </motion.div>
 
-      <EliMascot message="Tell me about your dream trip!" size="sm" />
+      <EliMascot message={isEditing ? "Let's update this trip! ✈️" : "Tell me about your dream trip!"} size="sm" />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4">
         <div className="space-y-2">
@@ -163,11 +206,13 @@ const CreateTrip = () => {
           onClick={() => handleSave("active")}
           className="w-full rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90 h-12 text-sm font-bold"
         >
-          <Sparkles className="h-4 w-4" /> {loading ? "Saving..." : "Create Trip"}
+          <Sparkles className="h-4 w-4" /> {loading ? "Saving..." : isEditing ? "Update Trip" : "Create Trip"}
         </Button>
-        <Button variant="outline" disabled={loading} onClick={() => handleSave("draft")} className="w-full rounded-xl h-11">
-          Save as Draft
-        </Button>
+        {!isEditing && (
+          <Button variant="outline" disabled={loading} onClick={() => handleSave("draft")} className="w-full rounded-xl h-11">
+            Save as Draft
+          </Button>
+        )}
       </motion.div>
     </div>
   );

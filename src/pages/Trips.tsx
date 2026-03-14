@@ -4,16 +4,21 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import TripCard from "@/components/shared/TripCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Trips = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [trips, setTrips] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [stopCounts, setStopCounts] = useState<Record<string, number>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [tripToDelete, setTripToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -36,6 +41,19 @@ const Trips = () => {
     };
     fetchTrips();
   }, [user]);
+
+  const handleDelete = async () => {
+    if (!tripToDelete) return;
+    const { error } = await supabase.from("trips").delete().eq("id", tripToDelete);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setTrips((prev) => prev.filter((t) => t.id !== tripToDelete));
+      toast({ title: "Trip deleted", description: "The trip has been removed." });
+    }
+    setTripToDelete(null);
+    setDeleteDialogOpen(false);
+  };
 
   const filtered = trips.filter(
     (t) =>
@@ -87,11 +105,28 @@ const Trips = () => {
                 startDate={trip.start_date ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 endDate={trip.end_date ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 stops={stopCounts[trip.id] || 0}
+                onEdit={() => navigate(`/trips/${trip.id}/edit`)}
+                onDelete={() => { setTripToDelete(trip.id); setDeleteDialogOpen(true); }}
               />
             </motion.div>
           ))
         )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-[320px] rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete trip?</AlertDialogTitle>
+            <AlertDialogDescription>This will permanently delete the trip and all its stops, itinerary, and linked data.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
