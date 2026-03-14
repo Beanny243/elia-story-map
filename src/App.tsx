@@ -13,6 +13,7 @@ import MapScreen from "./pages/MapScreen";
 import Memories from "./pages/Memories";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Subscription from "./pages/Subscription";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/memories" element={<Memories />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/subscription" element={<Subscription />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
