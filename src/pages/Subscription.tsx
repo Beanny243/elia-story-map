@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, Crown, Loader2, Sparkles, ExternalLink } from "lucide-react";
+import { ArrowLeft, Check, Crown, Loader2, Sparkles, ExternalLink, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
