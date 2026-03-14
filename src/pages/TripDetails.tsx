@@ -99,6 +99,8 @@ const TripDetails = () => {
           </SelectContent>
         </Select>
       </div>
+
+      <div className="px-5 pt-4">
         <Tabs defaultValue="stops">
           <TabsList className="w-full bg-secondary rounded-xl">
             <TabsTrigger value="stops" className="flex-1 rounded-lg text-xs">Stops</TabsTrigger>
