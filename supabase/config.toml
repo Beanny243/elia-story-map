@@ -2,3 +2,9 @@ project_id = "rzidgauuxcaymdjjqvlk"
 
 [functions.generate-itinerary]
 verify_jwt = false
+
+[functions.push-setup]
+verify_jwt = false
+
+[functions.send-push-notifications]
+verify_jwt = false

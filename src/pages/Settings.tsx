@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, Save, Trash2, Bell, BellOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSupported: pushSupported, isSubscribed: pushEnabled, loading: pushLoading, permission, subscribe: enablePush, unsubscribe: disablePush } = usePushNotifications();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -155,6 +158,44 @@ const Settings = () => {
           <Input value={user?.email || ""} disabled className="bg-muted" />
         </div>
       </motion.div>
+
+      {/* Push Notifications */}
+      {pushSupported && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
+          <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-3">
+              {pushEnabled ? (
+                <Bell className="h-4 w-4 text-primary" />
+              ) : (
+                <BellOff className="h-4 w-4 text-muted-foreground" />
+              )}
+              <div>
+                <p className="text-sm font-medium text-foreground">Push Notifications</p>
+                <p className="text-xs text-muted-foreground">
+                  {permission === "denied"
+                    ? "Blocked in browser settings"
+                    : "Get alerts for upcoming trips"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={pushEnabled}
+              disabled={pushLoading || permission === "denied"}
+              onCheckedChange={async (checked) => {
+                if (checked) {
+                  const ok = await enablePush();
+                  if (ok) toast({ title: "Push notifications enabled! 🔔" });
+                  else if (permission === "denied") toast({ title: "Notifications blocked", description: "Enable in your browser settings", variant: "destructive" });
+                } else {
+                  await disablePush();
+                  toast({ title: "Push notifications disabled" });
+                }
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
 
       {/* Actions */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-3 pt-2">
