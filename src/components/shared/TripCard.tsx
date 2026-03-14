@@ -20,11 +20,8 @@ interface TripCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
 }
-  onEdit?: () => void;
-  onDelete?: () => void;
-}
 
-const TripCard = ({ id, title, destination, coverImage, startDate, endDate, stops, onEdit, onDelete }: TripCardProps) => {
+const TripCard = ({ id, title, destination, coverImage, startDate, endDate, stops, status, onEdit, onDelete }: TripCardProps) => {
   const navigate = useNavigate();
 
   return (
