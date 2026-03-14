@@ -9,6 +9,7 @@ import MemoryCard from "@/components/shared/MemoryCard";
 import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getCoverImageForDestination } from "@/lib/cover-images";
 
 type Suggestion = { title: string; description: string; emoji: string; action?: string };
 
@@ -202,7 +203,7 @@ const Index = () => {
                 id={trip.id}
                 title={trip.title}
                 destination={trip.destination}
-                coverImage={trip.cover_image || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80"}
+                coverImage={trip.cover_image || getCoverImageForDestination(trip.destination)}
                 startDate={trip.start_date ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 endDate={trip.end_date ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 stops={tripStopCounts[trip.id] || 0}
