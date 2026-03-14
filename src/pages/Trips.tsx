@@ -1,4 +1,5 @@
 import { Plus, Search } from "lucide-react";
+import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
