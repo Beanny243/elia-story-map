@@ -156,6 +156,26 @@ const AIItinerary = () => {
     }
   };
 
+  if (!canUseAI) {
+    return (
+      <div className="px-5 pt-10 pb-24">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-6">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-xl hover:bg-secondary transition-colors">
+            <ArrowLeft className="h-5 w-5 text-foreground" />
+          </button>
+          <div>
+            <h1 className="text-xl font-display font-bold text-foreground">AI Itinerary</h1>
+            <p className="text-xs text-muted-foreground">Generate a personalized day-by-day plan</p>
+          </div>
+        </motion.div>
+        <UpgradePrompt
+          feature="AI Itinerary is a Premium Feature"
+          description="Upgrade to generate personalized day-by-day travel plans with AI."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 pt-10 space-y-5 pb-24">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">

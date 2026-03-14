@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TripInfoCard from "@/components/map/TripInfoCard";
 import TripFilterPanel from "@/components/map/TripFilterPanel";
+import UpgradePrompt from "@/components/shared/UpgradePrompt";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiYmVhbm55MjQzIiwiYSI6ImNtbXBiMjQzdDBvcDIycHF0NmY3ZHBxcmsifQ.xNcSuOwjYejAP-Rl1u_kwA";
 
