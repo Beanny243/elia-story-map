@@ -161,8 +161,9 @@ const Index = () => {
         <Button onClick={() => navigate("/trips/create")} className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
           <Plus className="h-4 w-4" /> Plan Trip
         </Button>
-        <Button variant="outline" onClick={() => navigate("/ai-itinerary")} className="flex-1 rounded-xl border-accent text-accent hover:bg-accent/10 gap-2">
+        <Button variant="outline" onClick={() => navigate("/ai-itinerary")} className="flex-1 rounded-xl border-accent text-accent hover:bg-accent/10 gap-2 relative">
           <Sparkles className="h-4 w-4" /> AI Itinerary
+          {!isPremium && <Crown className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-primary fill-primary" />}
         </Button>
         <Button variant="outline" onClick={() => navigate("/memories")} className="rounded-xl gap-2 px-3">
           <BookOpen className="h-4 w-4" />
