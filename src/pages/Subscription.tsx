@@ -152,7 +152,7 @@ const Subscription = () => {
                   </span>
                 )}
                 {"savings" in tier && tier.savings && (
-                  <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-green-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full uppercase tracking-wider">
                     {tier.savings}
                   </span>
                 )}
