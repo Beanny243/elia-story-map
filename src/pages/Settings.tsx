@@ -16,6 +16,7 @@ const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSupported: pushSupported, isSubscribed: pushEnabled, loading: pushLoading, permission, subscribe: enablePush, unsubscribe: disablePush } = usePushNotifications();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
