@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Crown } from "lucide-react";
 import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import TripCard from "@/components/shared/TripCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate, FREE_LIMITS } from "@/hooks/useSubscriptionGate";
 
 const Trips = () => {
   const navigate = useNavigate();
