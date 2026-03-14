@@ -45,6 +45,7 @@ interface TripMeta {
 }
 
 const MapScreen = () => {
+  const { canUseMap } = useSubscriptionGate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
