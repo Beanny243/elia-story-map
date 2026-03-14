@@ -20,6 +20,7 @@ const transportIcons: Record<string, typeof Plane> = { flight: Plane, train: Tra
 const TripDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
   const [trip, setTrip] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [itinerary, setItinerary] = useState<any[]>([]);
