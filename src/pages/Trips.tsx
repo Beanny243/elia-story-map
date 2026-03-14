@@ -16,6 +16,8 @@ const Trips = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium, maxTrips } = useSubscriptionGate();
+  const atLimit = !isPremium && trips.length >= maxTrips;
   const [trips, setTrips] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [stopCounts, setStopCounts] = useState<Record<string, number>>({});
