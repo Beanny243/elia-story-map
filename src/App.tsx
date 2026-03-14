@@ -56,6 +56,7 @@ const App = () => (
               <Route path="/map" element={<MapScreen />} />
               <Route path="/memories" element={<Memories />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

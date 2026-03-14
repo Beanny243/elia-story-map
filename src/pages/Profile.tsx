@@ -82,7 +82,7 @@ const Profile = () => {
       </motion.section>
 
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-2">
-        <button className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors">
+        <button onClick={() => navigate("/settings")} className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors">
           <Settings className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium text-foreground flex-1">Settings</span>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
