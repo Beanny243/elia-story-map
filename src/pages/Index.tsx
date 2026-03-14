@@ -1,4 +1,5 @@
 import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart } from "lucide-react";
+import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
