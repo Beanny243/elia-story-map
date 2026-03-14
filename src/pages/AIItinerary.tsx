@@ -19,6 +19,7 @@ const AIItinerary = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { canUseAI } = useSubscriptionGate();
 
   const [trips, setTrips] = useState<any[]>([]);
   const [selectedTripId, setSelectedTripId] = useState("");
