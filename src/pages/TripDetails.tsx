@@ -31,6 +31,24 @@ const TripDetails = () => {
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [memories, setMemories] = useState<any[]>([]);
 
+  const handleAddDay = async () => {
+    if (!id) return;
+    const nextDayNumber = itinerary.length > 0
+      ? Math.max(...itinerary.map((d: any) => d.day_number)) + 1
+      : 1;
+    const { data, error } = await supabase
+      .from("itinerary_items")
+      .insert({ trip_id: id, day_number: nextDayNumber, title: `Day ${nextDayNumber}`, activities: [] })
+      .select()
+      .single();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    if (data) setItinerary((prev) => [...prev, data].sort((a, b) => a.day_number - b.day_number));
+    toast({ title: "Day added", description: `Day ${nextDayNumber} created.` });
+  };
+
   useEffect(() => {
     if (!id) return;
     const fetch = async () => {
