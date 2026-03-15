@@ -15,11 +15,11 @@ const EliMascot = ({ message, size = "md", className, animate = true }: EliMasco
     <img
       src={eliImg}
       alt="Eli the Explorer"
-      className={cn(sizes[size], "object-contain", animate && "animate-float")}
+      className={cn(sizes[size], "object-contain drop-shadow-md", animate && "animate-float")}
     />
     {message && (
-      <div className="bg-card rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-card max-w-[220px]">
-        <p className="text-sm text-foreground font-medium">{message}</p>
+      <div className="bg-card rounded-2xl rounded-bl-sm px-4 py-3 shadow-card border border-border/40 max-w-[220px]">
+        <p className="text-sm text-foreground font-medium leading-relaxed">{message}</p>
       </div>
     )}
   </div>

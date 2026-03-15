@@ -28,32 +28,32 @@ const TripCard = ({ id, title, destination, coverImage, startDate, endDate, stop
     <div className="relative group">
       <button
         onClick={() => navigate(`/trips/${id}`)}
-        className="w-full bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow duration-300 text-left"
+        className="w-full bg-card rounded-2xl overflow-hidden shadow-card border border-border/40 hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 text-left"
       >
-        <div className="h-36 relative overflow-hidden">
-          <img src={coverImage} alt={title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+        <div className="h-40 relative overflow-hidden">
+          <img src={coverImage} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           {status && statusConfig[status] && (
-            <Badge className={`absolute top-2.5 left-2.5 text-[10px] font-bold border-0 ${statusConfig[status].className}`}>
+            <Badge className={`absolute top-3 left-3 text-[10px] font-bold border-0 shadow-sm ${statusConfig[status].className}`}>
               {statusConfig[status].label}
             </Badge>
           )}
-          <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-primary-foreground font-display font-bold text-lg leading-tight">{title}</h3>
+          <div className="absolute bottom-3 left-3.5 right-3.5">
+            <h3 className="text-white font-display font-bold text-lg leading-tight drop-shadow-sm">{title}</h3>
           </div>
         </div>
-        <div className="p-3 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-accent" />{destination}</span>
-          <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{startDate}</span>
-          <span className="flex items-center gap-1 ml-auto"><Navigation className="h-3.5 w-3.5" />{stops} stops</span>
+        <div className="px-4 py-3 flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 font-medium"><MapPin className="h-3.5 w-3.5 text-accent" />{destination}</span>
+          <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{startDate} – {endDate}</span>
+          <span className="flex items-center gap-1.5 ml-auto"><Navigation className="h-3.5 w-3.5" />{stops}</span>
         </div>
       </button>
       {(onEdit || onDelete) && (
-        <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <div className="absolute top-2.5 right-2.5 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
           {onEdit && (
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
-              className="p-2 rounded-xl bg-card/90 backdrop-blur-sm shadow-sm hover:bg-card transition-colors"
+              className="p-2 rounded-xl glass shadow-sm hover:bg-card transition-colors"
             >
               <Pencil className="h-3.5 w-3.5 text-foreground" />
             </button>
@@ -61,7 +61,7 @@ const TripCard = ({ id, title, destination, coverImage, startDate, endDate, stop
           {onDelete && (
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
-              className="p-2 rounded-xl bg-card/90 backdrop-blur-sm shadow-sm hover:bg-destructive/90 hover:text-destructive-foreground transition-colors"
+              className="p-2 rounded-xl glass shadow-sm hover:bg-destructive/90 hover:text-destructive-foreground transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
