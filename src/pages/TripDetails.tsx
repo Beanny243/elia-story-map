@@ -1,12 +1,13 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Sparkles, Crown } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Sparkles, Crown, RotateCcw } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MemoryCard from "@/components/shared/MemoryCard";
+import InlineItineraryGenerator from "@/components/trip/InlineItineraryGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
