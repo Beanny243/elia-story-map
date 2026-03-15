@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Sparkles, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
