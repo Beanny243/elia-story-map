@@ -1,13 +1,15 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Sparkles, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import MemoryCard from "@/components/shared/MemoryCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
@@ -21,6 +23,7 @@ const TripDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { isPremium } = useSubscriptionGate();
   const [trip, setTrip] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [itinerary, setItinerary] = useState<any[]>([]);
@@ -133,7 +136,18 @@ const TripDetails = () => {
 
           <TabsContent value="itinerary" className="mt-4 space-y-3">
             {itinerary.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">No itinerary items yet.</p>
+              <div className="space-y-3 py-2">
+                <p className="text-sm text-muted-foreground text-center">No itinerary items yet.</p>
+                <Button
+                  onClick={() => navigate(isPremium ? "/ai-itinerary" : "/subscription")}
+                  variant="outline"
+                  className="w-full rounded-xl gap-2"
+                >
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  Generate with AI
+                  {!isPremium && <Crown className="h-3.5 w-3.5 text-primary fill-primary ml-1" />}
+                </Button>
+              </div>
             ) : (
               itinerary.map((day, i) => (
                 <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
