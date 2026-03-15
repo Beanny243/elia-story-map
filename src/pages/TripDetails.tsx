@@ -150,21 +150,52 @@ const TripDetails = () => {
             ) : (
               <>
                 {itinerary.map((day, i) => (
-                  <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                    className="bg-card rounded-xl p-4 shadow-card space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">Day {day.day_number}</span>
-                      <span className="text-sm font-semibold text-foreground">{day.title}</span>
-                    </div>
-                    <ul className="space-y-1">
-                      {(day.activities || []).map((a: string, j: number) => (
-                        <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <div className="h-1 w-1 rounded-full bg-accent" />
-                          {a}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
+                  <ItineraryDayCard
+                    key={day.id}
+                    day={day}
+                    index={i}
+                    isFirst={i === 0}
+                    isLast={i === itinerary.length - 1}
+                    onUpdate={(updated) =>
+                      setItinerary((prev) =>
+                        prev.map((d) => (d.id === updated.id ? updated : d))
+                      )
+                    }
+                    onDelete={(deletedId) =>
+                      setItinerary((prev) => prev.filter((d) => d.id !== deletedId))
+                    }
+                    onMoveUp={async () => {
+                      if (i === 0) return;
+                      const newList = [...itinerary];
+                      const prev = newList[i - 1];
+                      const curr = newList[i];
+                      // Swap day_numbers
+                      const tempDay = prev.day_number;
+                      newList[i - 1] = { ...curr, day_number: tempDay };
+                      newList[i] = { ...prev, day_number: curr.day_number };
+                      newList.sort((a, b) => a.day_number - b.day_number);
+                      setItinerary(newList);
+                      await Promise.all([
+                        supabase.from("itinerary_items").update({ day_number: tempDay }).eq("id", curr.id),
+                        supabase.from("itinerary_items").update({ day_number: curr.day_number }).eq("id", prev.id),
+                      ]);
+                    }}
+                    onMoveDown={async () => {
+                      if (i === itinerary.length - 1) return;
+                      const newList = [...itinerary];
+                      const next = newList[i + 1];
+                      const curr = newList[i];
+                      const tempDay = next.day_number;
+                      newList[i + 1] = { ...curr, day_number: tempDay };
+                      newList[i] = { ...next, day_number: curr.day_number };
+                      newList.sort((a, b) => a.day_number - b.day_number);
+                      setItinerary(newList);
+                      await Promise.all([
+                        supabase.from("itinerary_items").update({ day_number: tempDay }).eq("id", curr.id),
+                        supabase.from("itinerary_items").update({ day_number: curr.day_number }).eq("id", next.id),
+                      ]);
+                    }}
+                  />
                 ))}
                 <InlineItineraryGenerator
                   trip={trip}
