@@ -139,34 +139,39 @@ const TripDetails = () => {
             {itinerary.length === 0 ? (
               <div className="space-y-3 py-2">
                 <p className="text-sm text-muted-foreground text-center">No itinerary items yet.</p>
-                <Button
-                  onClick={() => navigate(isPremium ? "/ai-itinerary" : "/subscription")}
-                  variant="outline"
-                  className="w-full rounded-xl gap-2"
-                >
-                  <Sparkles className="h-4 w-4 text-accent" />
-                  Generate with AI
-                  {!isPremium && <Crown className="h-3.5 w-3.5 text-primary fill-primary ml-1" />}
-                </Button>
+                <InlineItineraryGenerator
+                  trip={trip}
+                  onSaved={(items) =>
+                    setItinerary(items.map((d, i) => ({ ...d, id: `gen-${i}` })))
+                  }
+                />
               </div>
             ) : (
-              itinerary.map((day, i) => (
-                <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                  className="bg-card rounded-xl p-4 shadow-card space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">Day {day.day_number}</span>
-                    <span className="text-sm font-semibold text-foreground">{day.title}</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {(day.activities || []).map((a: string, j: number) => (
-                      <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <div className="h-1 w-1 rounded-full bg-accent" />
-                        {a}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))
+              <>
+                {itinerary.map((day, i) => (
+                  <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                    className="bg-card rounded-xl p-4 shadow-card space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">Day {day.day_number}</span>
+                      <span className="text-sm font-semibold text-foreground">{day.title}</span>
+                    </div>
+                    <ul className="space-y-1">
+                      {(day.activities || []).map((a: string, j: number) => (
+                        <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <div className="h-1 w-1 rounded-full bg-accent" />
+                          {a}
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+                <InlineItineraryGenerator
+                  trip={trip}
+                  onSaved={(items) =>
+                    setItinerary(items.map((d, i) => ({ ...d, id: `gen-${i}` })))
+                  }
+                />
+              </>
             )}
           </TabsContent>
 
