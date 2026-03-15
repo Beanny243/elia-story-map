@@ -1,4 +1,4 @@
-import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart } from "lucide-react";
+import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart, Crown } from "lucide-react";
 import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
@@ -11,6 +11,7 @@ import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCoverImageForDestination } from "@/lib/cover-images";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 type Suggestion = { title: string; description: string; emoji: string; action?: string };
 
@@ -60,6 +61,7 @@ const FREQUENCY_MESSAGES: Record<string, string> = {
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isPremium } = useSubscriptionGate();
   const [profile, setProfile] = useState<any>(null);
   const [trips, setTrips] = useState<any[]>([]);
   const [memories, setMemories] = useState<any[]>([]);
@@ -160,8 +162,9 @@ const Index = () => {
         <Button onClick={() => navigate("/trips/create")} className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
           <Plus className="h-4 w-4" /> Plan Trip
         </Button>
-        <Button variant="outline" onClick={() => navigate("/ai-itinerary")} className="flex-1 rounded-xl border-accent text-accent hover:bg-accent/10 gap-2">
+        <Button variant="outline" onClick={() => navigate("/ai-itinerary")} className="flex-1 rounded-xl border-accent text-accent hover:bg-accent/10 gap-2 relative">
           <Sparkles className="h-4 w-4" /> AI Itinerary
+          {!isPremium && <Crown className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-primary fill-primary" />}
         </Button>
         <Button variant="outline" onClick={() => navigate("/memories")} className="rounded-xl gap-2 px-3">
           <BookOpen className="h-4 w-4" />
