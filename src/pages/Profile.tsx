@@ -84,6 +84,27 @@ const Profile = () => {
         </div>
       </motion.section>
 
+      {!isPremium && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+              <Crown className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">Unlock Premium</p>
+              <p className="text-xs text-muted-foreground">Get unlimited trips, AI & map access</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => navigate("/subscription")}
+              className="rounded-xl gap-1.5"
+            >
+              <Crown className="h-3.5 w-3.5" /> Upgrade
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-2">
         <button onClick={() => navigate("/settings")} className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors">
           <Settings className="h-4 w-4 text-muted-foreground" />
