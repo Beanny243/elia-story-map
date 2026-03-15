@@ -1,4 +1,4 @@
-import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, MapPin, Utensils, Camera, Music, BookOpenText, Leaf, Heart, Crown } from "lucide-react";
+import { Globe, Building2, Compass, Route, Sparkles, Plus, BookOpen, Crown } from "lucide-react";
 import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
@@ -60,6 +60,11 @@ const FREQUENCY_MESSAGES: Record<string, string> = {
   nomad: "Home is wherever you are — keep moving!",
 };
 
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+};
+
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -72,14 +77,12 @@ const Index = () => {
 
   useEffect(() => {
     if (!user) return;
-
     const fetchData = async () => {
       const [profileRes, tripsRes, memoriesRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).single(),
         supabase.from("trips").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
         supabase.from("memories").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(2),
       ]);
-
       if (profileRes.data) setProfile(profileRes.data);
       if (tripsRes.data) {
         setTrips(tripsRes.data);
@@ -92,29 +95,21 @@ const Index = () => {
       }
       if (memoriesRes.data) setMemories(memoriesRes.data);
     };
-
     fetchData();
   }, [user]);
 
   const personalizedSuggestions = useMemo(() => {
     if (!profile) return [];
     const suggestions: Suggestion[] = [];
-
-    // Add style-based suggestions
     if (profile.travel_style && STYLE_SUGGESTIONS[profile.travel_style]) {
       suggestions.push(...STYLE_SUGGESTIONS[profile.travel_style]);
     }
-
-    // Add interest-based suggestions
     const interests = profile.interests as string[] | null;
     if (interests?.length) {
       for (const interest of interests.slice(0, 2)) {
-        if (INTEREST_SUGGESTIONS[interest]) {
-          suggestions.push(INTEREST_SUGGESTIONS[interest]);
-        }
+        if (INTEREST_SUGGESTIONS[interest]) suggestions.push(INTEREST_SUGGESTIONS[interest]);
       }
     }
-
     return suggestions.slice(0, 4);
   }, [profile]);
 
@@ -138,53 +133,73 @@ const Index = () => {
   };
 
   return (
-    <div className="px-5 pt-12 space-y-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground font-medium">{greeting()} 👋</p>
-          <h1 className="text-2xl font-display font-bold text-foreground">
+    <div className="px-5 pt-14 pb-6 space-y-7">
+      {/* Header */}
+      <motion.div {...fadeUp} className="flex items-start justify-between">
+        <div className="space-y-0.5">
+          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{greeting()} 👋</p>
+          <h1 className="text-[22px] font-display font-bold text-foreground tracking-tight">
             Welcome{profile?.display_name ? `, ${profile.display_name}` : " to Eliamap"}
           </h1>
-          <p className="text-xs text-muted-foreground italic">Every journey becomes a story.</p>
+          <p className="text-xs text-muted-foreground">Every journey becomes a story.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={toggleTheme} className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-colors">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl bg-card border border-border/40 text-muted-foreground hover:text-foreground shadow-card transition-all duration-200 hover:shadow-elevated"
+          >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <NotificationCenter />
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}>
+      {/* Mascot */}
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
         <EliMascot message={mascotMessage} size="sm" />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid grid-cols-4 gap-2">
+      {/* Stats */}
+      <motion.div {...fadeUp} transition={{ delay: 0.15 }} className="grid grid-cols-4 gap-2">
         <StatCard icon={Globe} label="Countries" value={profile?.countries_visited ?? 0} />
         <StatCard icon={Building2} label="Cities" value={profile?.cities_visited ?? 0} />
         <StatCard icon={Compass} label="Trips" value={trips.length} />
         <StatCard icon={Route} label="km" value={profile?.total_distance_km ? `${Math.round(profile.total_distance_km / 1000)}k` : "0"} />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex gap-2">
-        <Button onClick={() => navigate("/trips/create")} className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
+      {/* Action Buttons */}
+      <motion.div {...fadeUp} transition={{ delay: 0.2 }} className="flex gap-2">
+        <Button
+          onClick={() => navigate("/trips/create")}
+          className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 gap-2 font-semibold shadow-card"
+        >
           <Plus className="h-4 w-4" /> Plan Trip
         </Button>
-        <Button variant="outline" onClick={() => navigate("/ai-itinerary")} className="flex-1 rounded-xl border-accent text-accent hover:bg-accent/10 gap-2 relative">
-          <Sparkles className="h-4 w-4" /> AI Itinerary
-          {!isPremium && <Crown className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-primary fill-primary" />}
+        <Button
+          variant="outline"
+          onClick={() => navigate("/ai-itinerary")}
+          className="flex-1 h-11 rounded-xl border-border text-foreground hover:bg-accent/10 hover:border-accent/40 gap-2 relative font-semibold"
+        >
+          <Sparkles className="h-4 w-4 text-accent" /> AI Itinerary
+          {!isPremium && <Crown className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-accent fill-accent" />}
         </Button>
-        <Button variant="outline" onClick={() => navigate("/memories")} className="rounded-xl gap-2 px-3">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/memories")}
+          className="h-11 rounded-xl gap-2 px-3 border-border hover:bg-muted"
+        >
           <BookOpen className="h-4 w-4" />
         </Button>
       </motion.div>
 
       {/* Personalized Suggestions */}
       {personalizedSuggestions.length > 0 && (
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-3">
+        <motion.section {...fadeUp} transition={{ delay: 0.25 }} className="space-y-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <h2 className="font-display font-bold text-lg text-foreground">For You</h2>
+            <div className="h-6 w-6 rounded-lg bg-accent/10 flex items-center justify-center">
+              <Sparkles className="h-3.5 w-3.5 text-accent" />
+            </div>
+            <h2 className="font-display font-bold text-base text-foreground">For You</h2>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
             {personalizedSuggestions.map((s, i) => (
@@ -192,24 +207,29 @@ const Index = () => {
                 key={i}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => s.action && navigate(s.action)}
-                className="flex-shrink-0 w-44 bg-card rounded-2xl p-4 border border-border text-left shadow-sm hover:border-accent/40 transition-colors"
+                className="flex-shrink-0 w-40 bg-card rounded-2xl p-3.5 border border-border/40 text-left shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
               >
                 <span className="text-2xl mb-2 block">{s.emoji}</span>
-                <h3 className="text-sm font-bold text-foreground leading-tight">{s.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.description}</p>
+                <h3 className="text-[13px] font-bold text-foreground leading-tight">{s.title}</h3>
+                <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{s.description}</p>
               </motion.button>
             ))}
           </div>
         </motion.section>
       )}
 
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-3">
+      {/* Recent Trips */}
+      <motion.section {...fadeUp} transition={{ delay: 0.3 }} className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-display font-bold text-lg text-foreground">Recent Trips</h2>
-          <button onClick={() => navigate("/trips")} className="text-xs text-accent font-semibold">See all</button>
+          <h2 className="font-display font-bold text-base text-foreground">Recent Trips</h2>
+          <button onClick={() => navigate("/trips")} className="text-xs text-primary font-semibold hover:text-primary/80 transition-colors">See all →</button>
         </div>
         {trips.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">No trips yet. Create your first one!</p>
+          <div className="bg-card rounded-2xl border border-border/40 p-8 text-center shadow-card">
+            <p className="text-2xl mb-2">✈️</p>
+            <p className="text-sm font-medium text-foreground">No trips yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Create your first trip to get started!</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {trips.map((trip) => (
@@ -228,30 +248,41 @@ const Index = () => {
         )}
       </motion.section>
 
-      {/* Community & Journal Quick Links */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="space-y-3">
-        <h2 className="font-display font-bold text-lg text-foreground">Explore</h2>
+      {/* Explore */}
+      <motion.section {...fadeUp} transition={{ delay: 0.35 }} className="space-y-3">
+        <h2 className="font-display font-bold text-base text-foreground">Explore</h2>
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate("/community")} className="bg-card rounded-2xl p-4 shadow-card text-left space-y-2 hover:shadow-md transition-shadow">
-            <span className="text-2xl">🌍</span>
+          <button
+            onClick={() => navigate("/community")}
+            className="bg-card rounded-2xl p-4 shadow-card border border-border/40 text-left space-y-2 hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl">🌍</div>
             <p className="text-sm font-bold text-foreground">Community</p>
-            <p className="text-[10px] text-muted-foreground">Share & discover experiences</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">Share & discover experiences</p>
           </button>
-          <button onClick={() => navigate("/spotting-journal")} className="bg-card rounded-2xl p-4 shadow-card text-left space-y-2 hover:shadow-md transition-shadow">
-            <span className="text-2xl">🔭</span>
+          <button
+            onClick={() => navigate("/spotting-journal")}
+            className="bg-card rounded-2xl p-4 shadow-card border border-border/40 text-left space-y-2 hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center text-xl">🔭</div>
             <p className="text-sm font-bold text-foreground">Spotting Journal</p>
-            <p className="text-[10px] text-muted-foreground">Log your travel discoveries</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">Log your travel discoveries</p>
           </button>
         </div>
       </motion.section>
 
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="space-y-3 pb-4">
+      {/* Recent Memories */}
+      <motion.section {...fadeUp} transition={{ delay: 0.4 }} className="space-y-3 pb-2">
         <div className="flex items-center justify-between">
-          <h2 className="font-display font-bold text-lg text-foreground">Recent Memories</h2>
-          <button onClick={() => navigate("/memories")} className="text-xs text-accent font-semibold">See all</button>
+          <h2 className="font-display font-bold text-base text-foreground">Recent Memories</h2>
+          <button onClick={() => navigate("/memories")} className="text-xs text-primary font-semibold hover:text-primary/80 transition-colors">See all →</button>
         </div>
         {memories.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">No memories yet. Add your first one!</p>
+          <div className="bg-card rounded-2xl border border-border/40 p-8 text-center shadow-card">
+            <p className="text-2xl mb-2">📸</p>
+            <p className="text-sm font-medium text-foreground">No memories yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Add your first memory!</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {memories.map((m) => (
