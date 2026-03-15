@@ -136,7 +136,16 @@ const TripDetails = () => {
 
           <TabsContent value="itinerary" className="mt-4 space-y-3">
             {itinerary.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">No itinerary items yet.</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No itinerary items yet.</p>
+              <Button
+                onClick={() => navigate(isPremium ? "/ai-itinerary" : "/subscription")}
+                variant="outline"
+                className="w-full rounded-xl gap-2 relative"
+              >
+                <Sparkles className="h-4 w-4 text-accent" />
+                Generate with AI
+                {!isPremium && <Crown className="h-3.5 w-3.5 text-primary fill-primary ml-1" />}
+              </Button>
             ) : (
               itinerary.map((day, i) => (
                 <motion.div key={day.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
