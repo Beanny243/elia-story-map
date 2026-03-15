@@ -18,6 +18,8 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
 import AIItinerary from "./pages/AIItinerary";
+import Community from "./pages/Community";
+import SpottingJournal from "./pages/SpottingJournal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
