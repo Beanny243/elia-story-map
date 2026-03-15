@@ -1,10 +1,12 @@
-import { Globe, Building2, Compass, Route, Award, Settings, LogOut, ChevronRight } from "lucide-react";
+import { Globe, Building2, Compass, Route, Award, Settings, LogOut, ChevronRight, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import StatCard from "@/components/shared/StatCard";
 import EliMascot from "@/components/shared/EliMascot";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 const badges = [
