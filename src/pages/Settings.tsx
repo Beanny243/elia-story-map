@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Save, Trash2, Bell, BellOff } from "lucide-react";
+import { ArrowLeft, Camera, Save, Trash2, Bell, BellOff, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +11,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useTheme } from "@/hooks/useTheme";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isSupported: pushSupported, isSubscribed: pushEnabled, loading: pushLoading, permission, subscribe: enablePush, unsubscribe: disablePush } = usePushNotifications();
+  const { isDark, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -159,9 +161,30 @@ const Settings = () => {
         </div>
       </motion.div>
 
+      {/* Appearance */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">Appearance</h2>
+        <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border">
+          <div className="flex items-center gap-3">
+            {isDark ? (
+              <Moon className="h-4 w-4 text-primary" />
+            ) : (
+              <Sun className="h-4 w-4 text-accent" />
+            )}
+            <div>
+              <p className="text-sm font-medium text-foreground">Dark Mode</p>
+              <p className="text-xs text-muted-foreground">
+                {isDark ? "Dark theme active" : "Light theme active"}
+              </p>
+            </div>
+          </div>
+          <Switch checked={isDark} onCheckedChange={toggleTheme} />
+        </div>
+      </motion.div>
+
       {/* Push Notifications */}
       {pushSupported && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-3">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="space-y-3">
           <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
           <div className="flex items-center justify-between p-3 bg-card rounded-xl border border-border">
             <div className="flex items-center gap-3">
