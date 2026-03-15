@@ -76,6 +76,7 @@ const TripDetails = () => {
     );
   };
 
+  useEffect(() => {
     if (!id) return;
     const fetch = async () => {
       const [tripRes, stopsRes, itinRes, memRes] = await Promise.all([
