@@ -12,6 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
+import { useTheme } from "@/hooks/useTheme";
+import { Sun, Moon } from "lucide-react";
 
 type Suggestion = { title: string; description: string; emoji: string; action?: string };
 
