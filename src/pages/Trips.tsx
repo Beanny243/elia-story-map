@@ -1,4 +1,4 @@
-import { Plus, Search, Crown } from "lucide-react";
+import { Plus, Search, Crown, Luggage } from "lucide-react";
 import { getCoverImageForDestination } from "@/lib/cover-images";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -65,29 +65,37 @@ const Trips = () => {
   );
 
   return (
-    <div className="px-5 pt-12 space-y-5">
+    <div className="px-5 pt-12 pb-28 space-y-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-display font-bold text-foreground">My Trips</h1>
-        <p className="text-sm text-muted-foreground">Your travel adventures</p>
+        <h1 className="text-2xl font-display font-bold text-foreground tracking-tight">My Trips</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Your travel adventures</p>
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search trips..."
-          className="pl-9 rounded-xl bg-card"
+          className="pl-10 rounded-2xl bg-card border-border/50 shadow-sm h-11 text-sm focus-visible:ring-primary/30"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-3">
         {!isPremium && (
           <div className="flex items-center justify-between px-1">
-            <p className="text-xs text-muted-foreground">
-              {trips.length}/{FREE_LIMITS.maxTrips} free trips used
-            </p>
-            <button onClick={() => navigate("/subscription")} className="text-xs text-primary font-semibold flex items-center gap-1">
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 flex-1 min-w-[80px] bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all"
+                  style={{ width: `${(trips.length / FREE_LIMITS.maxTrips) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground font-medium">
+                {trips.length}/{FREE_LIMITS.maxTrips} trips
+              </p>
+            </div>
+            <button onClick={() => navigate("/subscription")} className="text-xs text-primary font-semibold flex items-center gap-1 hover:text-primary/80 transition-colors">
               <Crown className="h-3 w-3" /> Upgrade
             </button>
           </div>
@@ -101,24 +109,29 @@ const Trips = () => {
             }
             navigate("/trips/create");
           }}
-          className="w-full rounded-xl gap-2 bg-primary text-primary-foreground"
+          className="w-full rounded-2xl gap-2 bg-primary text-primary-foreground h-12 font-semibold text-sm shadow-md hover:shadow-lg transition-all"
         >
           <Plus className="h-4 w-4" /> Create New Trip
         </Button>
       </motion.div>
 
-      <div className="space-y-3 pb-4">
+      <div className="space-y-3">
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            {trips.length === 0 ? "No trips yet. Create your first one!" : "No trips match your search."}
-          </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="h-14 w-14 rounded-2xl bg-muted/60 flex items-center justify-center">
+              <Luggage className="h-7 w-7 text-muted-foreground/60" />
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              {trips.length === 0 ? "No trips yet. Create your first one!" : "No trips match your search."}
+            </p>
+          </motion.div>
         ) : (
           filtered.map((trip, i) => (
             <motion.div
               key={trip.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.08 }}
+              transition={{ delay: 0.2 + i * 0.06 }}
             >
               <TripCard
                 id={trip.id}
@@ -138,9 +151,9 @@ const Trips = () => {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="max-w-[320px] rounded-2xl">
+        <AlertDialogContent className="max-w-[320px] rounded-2xl border-border/50 shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete trip?</AlertDialogTitle>
+            <AlertDialogTitle className="font-display">Delete trip?</AlertDialogTitle>
             <AlertDialogDescription>This will permanently delete the trip and all its stops, itinerary, and linked data.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
