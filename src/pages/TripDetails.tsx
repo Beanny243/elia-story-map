@@ -51,7 +51,31 @@ const TripDetails = () => {
     toast({ title: "Day added", description: `Day ${nextDayNumber} created.` });
   };
 
-  useEffect(() => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = itinerary.findIndex((d) => d.id === active.id);
+    const newIndex = itinerary.findIndex((d) => d.id === over.id);
+    const reordered = arrayMove(itinerary, oldIndex, newIndex);
+
+    // Reassign day_numbers sequentially
+    const updated = reordered.map((d, i) => ({ ...d, day_number: i + 1 }));
+    setItinerary(updated);
+
+    // Persist all day_number changes
+    await Promise.all(
+      updated.map((d) =>
+        supabase.from("itinerary_items").update({ day_number: d.day_number }).eq("id", d.id)
+      )
+    );
+  };
+
     if (!id) return;
     const fetch = async () => {
       const [tripRes, stopsRes, itinRes, memRes] = await Promise.all([
