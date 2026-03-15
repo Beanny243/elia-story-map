@@ -58,6 +58,8 @@ const App = () => (
               <Route path="/ai-itinerary" element={<AIItinerary />} />
               <Route path="/map" element={<MapScreen />} />
               <Route path="/memories" element={<Memories />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/spotting-journal" element={<SpottingJournal />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/subscription" element={<Subscription />} />
