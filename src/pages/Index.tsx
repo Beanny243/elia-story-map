@@ -220,6 +220,23 @@ const Index = () => {
         )}
       </motion.section>
 
+      {/* Community & Journal Quick Links */}
+      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="space-y-3">
+        <h2 className="font-display font-bold text-lg text-foreground">Explore</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => navigate("/community")} className="bg-card rounded-2xl p-4 shadow-card text-left space-y-2 hover:shadow-md transition-shadow">
+            <span className="text-2xl">🌍</span>
+            <p className="text-sm font-bold text-foreground">Community</p>
+            <p className="text-[10px] text-muted-foreground">Share & discover experiences</p>
+          </button>
+          <button onClick={() => navigate("/spotting-journal")} className="bg-card rounded-2xl p-4 shadow-card text-left space-y-2 hover:shadow-md transition-shadow">
+            <span className="text-2xl">🔭</span>
+            <p className="text-sm font-bold text-foreground">Spotting Journal</p>
+            <p className="text-[10px] text-muted-foreground">Log your travel discoveries</p>
+          </button>
+        </div>
+      </motion.section>
+
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="space-y-3 pb-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-lg text-foreground">Recent Memories</h2>
