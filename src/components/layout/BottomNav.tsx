@@ -1,4 +1,4 @@
-import { Home, Map, Compass, Users, User, Crown } from "lucide-react";
+import { Home, Map, Compass, Users, User, Crown, Camera } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
@@ -6,6 +6,7 @@ import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 const tabs = [
   { path: "/", icon: Home, label: "Home" },
   { path: "/trips", icon: Compass, label: "Trips" },
+  { path: "/memories", icon: Camera, label: "Memories" },
   { path: "/community", icon: Users, label: "Community" },
   { path: "/map", icon: Map, label: "Map", premium: true },
   { path: "/profile", icon: User, label: "Profile" },
