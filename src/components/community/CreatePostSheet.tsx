@@ -3,6 +3,7 @@ import { Camera, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import CountrySelector from "@/components/shared/CountrySelector";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,12 +117,10 @@ const CreatePostSheet = ({ open, onOpenChange, onCreated }: CreatePostSheetProps
             placeholder="Share your experience, tip, or question..."
             className="rounded-xl min-h-[100px] resize-none"
           />
-          <Input
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="📍 Location (e.g. Serengeti, Tanzania)"
-            className="rounded-xl"
-          />
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground pl-1">📍 Location</label>
+            <CountrySelector value={location} onValueChange={setLocation} />
+          </div>
 
           {photoPreview ? (
             <div className="relative rounded-xl overflow-hidden">
