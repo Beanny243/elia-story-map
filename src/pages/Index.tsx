@@ -64,6 +64,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium } = useSubscriptionGate();
+  const { isDark, toggleTheme } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [trips, setTrips] = useState<any[]>([]);
   const [memories, setMemories] = useState<any[]>([]);
