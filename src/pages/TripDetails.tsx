@@ -176,53 +176,25 @@ const TripDetails = () => {
               </div>
             ) : (
               <>
-                {itinerary.map((day, i) => (
-                  <ItineraryDayCard
-                    key={day.id}
-                    day={day}
-                    index={i}
-                    isFirst={i === 0}
-                    isLast={i === itinerary.length - 1}
-                    onUpdate={(updated) =>
-                      setItinerary((prev) =>
-                        prev.map((d) => (d.id === updated.id ? updated : d))
-                      )
-                    }
-                    onDelete={(deletedId) =>
-                      setItinerary((prev) => prev.filter((d) => d.id !== deletedId))
-                    }
-                    onMoveUp={async () => {
-                      if (i === 0) return;
-                      const newList = [...itinerary];
-                      const prev = newList[i - 1];
-                      const curr = newList[i];
-                      const tempDay = prev.day_number;
-                      newList[i - 1] = { ...curr, day_number: tempDay };
-                      newList[i] = { ...prev, day_number: curr.day_number };
-                      newList.sort((a, b) => a.day_number - b.day_number);
-                      setItinerary(newList);
-                      await Promise.all([
-                        supabase.from("itinerary_items").update({ day_number: tempDay }).eq("id", curr.id),
-                        supabase.from("itinerary_items").update({ day_number: curr.day_number }).eq("id", prev.id),
-                      ]);
-                    }}
-                    onMoveDown={async () => {
-                      if (i === itinerary.length - 1) return;
-                      const newList = [...itinerary];
-                      const next = newList[i + 1];
-                      const curr = newList[i];
-                      const tempDay = next.day_number;
-                      newList[i + 1] = { ...curr, day_number: tempDay };
-                      newList[i] = { ...next, day_number: curr.day_number };
-                      newList.sort((a, b) => a.day_number - b.day_number);
-                      setItinerary(newList);
-                      await Promise.all([
-                        supabase.from("itinerary_items").update({ day_number: tempDay }).eq("id", curr.id),
-                        supabase.from("itinerary_items").update({ day_number: curr.day_number }).eq("id", next.id),
-                      ]);
-                    }}
-                  />
-                ))}
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={itinerary.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+                    {itinerary.map((day, i) => (
+                      <ItineraryDayCard
+                        key={day.id}
+                        day={day}
+                        index={i}
+                        onUpdate={(updated) =>
+                          setItinerary((prev) =>
+                            prev.map((d) => (d.id === updated.id ? updated : d))
+                          )
+                        }
+                        onDelete={(deletedId) =>
+                          setItinerary((prev) => prev.filter((d) => d.id !== deletedId))
+                        }
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 <Button
                   variant="outline"
                   className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
