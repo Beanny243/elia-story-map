@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { GripVertical, Pencil, Trash2, Check, X, Plus, ChevronUp, ChevronDown } from "lucide-react";
+import { GripVertical, Pencil, Trash2, Check, X, Plus } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,30 +17,33 @@ interface ItineraryDayCardProps {
     trip_id: string;
   };
   index: number;
-  isFirst: boolean;
-  isLast: boolean;
   onUpdate: (updated: any) => void;
   onDelete: (id: string) => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
 }
 
-const ItineraryDayCard = ({
-  day,
-  index,
-  isFirst,
-  isLast,
-  onUpdate,
-  onDelete,
-  onMoveUp,
-  onMoveDown,
-}: ItineraryDayCardProps) => {
+const ItineraryDayCard = ({ day, index, onUpdate, onDelete }: ItineraryDayCardProps) => {
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(day.title);
   const [activities, setActivities] = useState<string[]>(day.activities || []);
   const [newActivity, setNewActivity] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: day.id, disabled: editing });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -88,8 +93,9 @@ const ItineraryDayCard = ({
 
   if (editing) {
     return (
-      <motion.div
-        layout
+      <div
+        ref={setNodeRef}
+        style={style}
         className="bg-card rounded-xl p-4 shadow-card space-y-3 border-2 border-accent/30"
       >
         <div className="flex items-center gap-2">
@@ -127,13 +133,7 @@ const ItineraryDayCard = ({
             className="h-7 text-xs rounded-lg bg-background flex-1"
             placeholder="Add activity..."
           />
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={addActivity}
-            className="h-7 w-7 p-0 shrink-0"
-            disabled={!newActivity.trim()}
-          >
+          <Button size="sm" variant="ghost" onClick={addActivity} className="h-7 w-7 p-0 shrink-0" disabled={!newActivity.trim()}>
             <Plus className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -148,12 +148,7 @@ const ItineraryDayCard = ({
             <Check className="h-3.5 w-3.5" />
             {saving ? "Saving..." : "Save"}
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleCancel}
-            className="rounded-lg h-8 text-xs text-muted-foreground"
-          >
+          <Button size="sm" variant="ghost" onClick={handleCancel} className="rounded-lg h-8 text-xs text-muted-foreground">
             Cancel
           </Button>
           <Button
@@ -165,35 +160,25 @@ const ItineraryDayCard = ({
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08 }}
-      className="bg-card rounded-xl p-4 shadow-card space-y-2 group"
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-card rounded-xl p-4 shadow-card space-y-2 group ${isDragging ? "shadow-lg ring-2 ring-accent/30" : ""}`}
     >
       <div className="flex items-center gap-2">
-        <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={onMoveUp}
-            disabled={isFirst}
-            className="p-0 disabled:opacity-20"
-          >
-            <ChevronUp className="h-3 w-3 text-muted-foreground" />
-          </button>
-          <button
-            onClick={onMoveDown}
-            disabled={isLast}
-            className="p-0 disabled:opacity-20"
-          >
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          </button>
-        </div>
+        <button
+          {...attributes}
+          {...listeners}
+          className="touch-none p-1 -ml-1 cursor-grab active:cursor-grabbing rounded-md hover:bg-secondary transition-colors"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
         <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
           Day {day.day_number}
         </span>
@@ -205,7 +190,7 @@ const ItineraryDayCard = ({
           <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-1 pl-7">
         {(day.activities || []).map((a: string, j: number) => (
           <li key={j} className="text-xs text-muted-foreground flex items-center gap-1.5">
             <div className="h-1 w-1 rounded-full bg-accent" />
@@ -213,7 +198,7 @@ const ItineraryDayCard = ({
           </li>
         ))}
       </ul>
-    </motion.div>
+    </div>
   );
 };
 
