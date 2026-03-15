@@ -23,6 +23,7 @@ const TripDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { isPremium } = useSubscriptionGate();
   const [trip, setTrip] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [itinerary, setItinerary] = useState<any[]>([]);
