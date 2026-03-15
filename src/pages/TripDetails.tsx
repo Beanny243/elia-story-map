@@ -1,6 +1,6 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Plus } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +30,24 @@ const TripDetails = () => {
   const [stops, setStops] = useState<any[]>([]);
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [memories, setMemories] = useState<any[]>([]);
+
+  const handleAddDay = async () => {
+    if (!id) return;
+    const nextDayNumber = itinerary.length > 0
+      ? Math.max(...itinerary.map((d: any) => d.day_number)) + 1
+      : 1;
+    const { data, error } = await supabase
+      .from("itinerary_items")
+      .insert({ trip_id: id, day_number: nextDayNumber, title: `Day ${nextDayNumber}`, activities: [] })
+      .select()
+      .single();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    if (data) setItinerary((prev) => [...prev, data].sort((a, b) => a.day_number - b.day_number));
+    toast({ title: "Day added", description: `Day ${nextDayNumber} created.` });
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -140,6 +158,13 @@ const TripDetails = () => {
             {itinerary.length === 0 ? (
               <div className="space-y-3 py-2">
                 <p className="text-sm text-muted-foreground text-center">No itinerary items yet.</p>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  onClick={handleAddDay}
+                >
+                  <Plus className="h-4 w-4" /> Add Day Manually
+                </Button>
                 <InlineItineraryGenerator
                   trip={trip}
                   onSaved={(items) =>
@@ -169,7 +194,6 @@ const TripDetails = () => {
                       const newList = [...itinerary];
                       const prev = newList[i - 1];
                       const curr = newList[i];
-                      // Swap day_numbers
                       const tempDay = prev.day_number;
                       newList[i - 1] = { ...curr, day_number: tempDay };
                       newList[i] = { ...prev, day_number: curr.day_number };
@@ -197,6 +221,13 @@ const TripDetails = () => {
                     }}
                   />
                 ))}
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  onClick={handleAddDay}
+                >
+                  <Plus className="h-4 w-4" /> Add Day
+                </Button>
                 <InlineItineraryGenerator
                   trip={trip}
                   onSaved={(items) =>
