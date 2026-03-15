@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Plus } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Plus, ImageOff } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import MemoryCard from "@/components/shared/MemoryCard";
 import InlineItineraryGenerator from "@/components/trip/InlineItineraryGenerator";
 import ItineraryDayCard from "@/components/trip/ItineraryDayCard";
@@ -15,10 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
-const statusConfig: Record<string, { label: string; className: string }> = {
-  draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
-  active: { label: "Active", className: "bg-accent text-accent-foreground" },
-  completed: { label: "Completed", className: "bg-primary text-primary-foreground" },
+const statusConfig: Record<string, { label: string; emoji: string; className: string }> = {
+  draft: { label: "Draft", emoji: "📝", className: "bg-muted text-muted-foreground" },
+  active: { label: "Active", emoji: "✈️", className: "bg-accent text-accent-foreground" },
+  completed: { label: "Completed", emoji: "✅", className: "bg-primary/15 text-primary" },
 };
 
 const transportIcons: Record<string, typeof Plane> = { flight: Plane, train: Train, bus: Bus, ferry: Ship };
@@ -59,16 +60,11 @@ const TripDetails = () => {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const oldIndex = itinerary.findIndex((d) => d.id === active.id);
     const newIndex = itinerary.findIndex((d) => d.id === over.id);
     const reordered = arrayMove(itinerary, oldIndex, newIndex);
-
-    // Reassign day_numbers sequentially
     const updated = reordered.map((d, i) => ({ ...d, day_number: i + 1 }));
     setItinerary(updated);
-
-    // Persist all day_number changes
     await Promise.all(
       updated.map((d) =>
         supabase.from("itinerary_items").update({ day_number: d.day_number }).eq("id", d.id)
@@ -78,7 +74,7 @@ const TripDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-    const fetch = async () => {
+    const fetchData = async () => {
       const [tripRes, stopsRes, itinRes, memRes] = await Promise.all([
         supabase.from("trips").select("*").eq("id", id).single(),
         supabase.from("trip_stops").select("*").eq("trip_id", id).order("sort_order"),
@@ -90,41 +86,64 @@ const TripDetails = () => {
       if (itinRes.data) setItinerary(itinRes.data);
       if (memRes.data) setMemories(memRes.data);
     };
-    fetch();
+    fetchData();
   }, [id]);
-
-  if (!trip) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Loading trip...</p>
-      </div>
-    );
-  }
 
   const formatDate = (d: string | null) =>
     d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD";
 
+  if (!trip) {
+    return (
+      <div className="pb-8">
+        <Skeleton className="h-56 w-full" />
+        <div className="px-5 pt-4 space-y-3">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
+          <Skeleton className="h-10 w-32 rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  const currentStatus = statusConfig[trip.status || "draft"] || statusConfig.draft;
+
   return (
-    <div className="pb-8">
-      <div className="relative h-52">
+    <div className="pb-28">
+      {/* Hero Cover */}
+      <div className="relative h-56 overflow-hidden">
         <img
           src={trip.cover_image || "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800&q=80"}
           alt="Trip cover"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-        <button onClick={() => navigate(-1)} className="absolute top-10 left-4 p-2 rounded-xl bg-card/80 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-10 left-4 p-2.5 rounded-2xl bg-card/70 backdrop-blur-md border border-border/30 shadow-sm hover:bg-card/90 transition-all"
+        >
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
-        <div className="absolute bottom-4 left-5 right-5">
-          <h1 className="text-2xl font-display font-bold text-foreground">{trip.title}</h1>
-          <p className="text-sm text-muted-foreground flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-accent" /> {trip.destination} • {formatDate(trip.start_date)}–{formatDate(trip.end_date)}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="absolute bottom-5 left-5 right-5"
+        >
+          <h1 className="text-2xl font-display font-bold text-foreground tracking-tight">{trip.title}</h1>
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+            <MapPin className="h-3.5 w-3.5 text-primary" />
+            {trip.destination} • {formatDate(trip.start_date)}–{formatDate(trip.end_date)}
           </p>
-        </div>
+        </motion.div>
       </div>
 
-      <div className="px-5 pt-3">
+      {/* Status Selector */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="px-5 pt-4"
+      >
         <Select
           value={trip.status || "draft"}
           onValueChange={async (val) => {
@@ -137,57 +156,80 @@ const TripDetails = () => {
             }
           }}
         >
-          <SelectTrigger className="w-fit rounded-xl gap-2 h-8 text-xs border-0 bg-card/80 px-3">
-            <Badge className={`text-[10px] font-bold border-0 ${statusConfig[trip.status || "draft"]?.className}`}>
-              {statusConfig[trip.status || "draft"]?.label || "Draft"}
+          <SelectTrigger className="w-fit rounded-2xl gap-2 h-9 text-xs border-border/40 bg-card shadow-sm px-3">
+            <Badge className={`text-[10px] font-bold border-0 rounded-lg px-2 py-0.5 ${currentStatus.className}`}>
+              {currentStatus.emoji} {currentStatus.label}
             </Badge>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl border-border/50 shadow-lg">
             <SelectItem value="draft">📝 Draft</SelectItem>
             <SelectItem value="active">✈️ Active</SelectItem>
             <SelectItem value="completed">✅ Completed</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
-      <div className="px-5 pt-4">
+      {/* Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="px-5 pt-5"
+      >
         <Tabs defaultValue="stops">
-          <TabsList className="w-full bg-secondary rounded-xl">
-            <TabsTrigger value="stops" className="flex-1 rounded-lg text-xs">Stops</TabsTrigger>
-            <TabsTrigger value="itinerary" className="flex-1 rounded-lg text-xs">Itinerary</TabsTrigger>
-            <TabsTrigger value="memories" className="flex-1 rounded-lg text-xs">Memories</TabsTrigger>
+          <TabsList className="w-full bg-muted/60 rounded-2xl p-1 h-11">
+            <TabsTrigger value="stops" className="flex-1 rounded-xl text-xs font-semibold data-[state=active]:shadow-sm">Stops</TabsTrigger>
+            <TabsTrigger value="itinerary" className="flex-1 rounded-xl text-xs font-semibold data-[state=active]:shadow-sm">Itinerary</TabsTrigger>
+            <TabsTrigger value="memories" className="flex-1 rounded-xl text-xs font-semibold data-[state=active]:shadow-sm">Memories</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="stops" className="mt-4 space-y-2">
+          {/* Stops Tab */}
+          <TabsContent value="stops" className="mt-4 space-y-2.5">
             {stops.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">No stops added yet.</p>
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
+                  <MapPin className="h-6 w-6 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm text-muted-foreground">No stops added yet.</p>
+              </div>
             ) : (
               stops.map((stop, i) => {
                 const TransportIcon = transportIcons[stop.transport_type] || Plane;
                 return (
-                  <motion.div key={stop.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-                    className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <motion.div
+                    key={stop.id}
+                    initial={{ opacity: 0, x: -15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    className="bg-card rounded-2xl p-3.5 shadow-sm border border-border/30 flex items-center gap-3 hover:shadow-md transition-all group"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <TransportIcon className="h-4 w-4 text-primary" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">{stop.city}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{stop.city}</p>
                       <p className="text-[11px] text-muted-foreground">{stop.country} • {formatDate(stop.arrive_date)} → {formatDate(stop.depart_date)}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />
                   </motion.div>
                 );
               })
             )}
           </TabsContent>
 
+          {/* Itinerary Tab */}
           <TabsContent value="itinerary" className="mt-4 space-y-3">
             {itinerary.length === 0 ? (
               <div className="space-y-3 py-2">
-                <p className="text-sm text-muted-foreground text-center">No itinerary items yet.</p>
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <div className="h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
+                    <Plus className="h-6 w-6 text-muted-foreground/50" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">No itinerary items yet.</p>
+                </div>
                 <Button
                   variant="outline"
-                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  className="w-full rounded-2xl gap-2 border-dashed border-muted-foreground/20 h-11 text-sm hover:bg-muted/40 transition-colors"
                   onClick={handleAddDay}
                 >
                   <Plus className="h-4 w-4" /> Add Day Manually
@@ -222,7 +264,7 @@ const TripDetails = () => {
                 </DndContext>
                 <Button
                   variant="outline"
-                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  className="w-full rounded-2xl gap-2 border-dashed border-muted-foreground/20 h-11 text-sm hover:bg-muted/40 transition-colors"
                   onClick={handleAddDay}
                 >
                   <Plus className="h-4 w-4" /> Add Day
@@ -237,9 +279,15 @@ const TripDetails = () => {
             )}
           </TabsContent>
 
+          {/* Memories Tab */}
           <TabsContent value="memories" className="mt-4 space-y-3">
             {memories.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">No memories for this trip yet.</p>
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
+                  <ImageOff className="h-6 w-6 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm text-muted-foreground">No memories for this trip yet.</p>
+              </div>
             ) : (
               memories.map((m) => (
                 <MemoryCard
@@ -253,7 +301,7 @@ const TripDetails = () => {
             )}
           </TabsContent>
         </Tabs>
-      </div>
+      </motion.div>
     </div>
   );
 };
