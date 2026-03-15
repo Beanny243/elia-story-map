@@ -17,6 +17,7 @@ const badges = [
 
 const Profile = () => {
   const { user, signOut } = useAuth();
+  const { isPremium } = useSubscriptionGate();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [tripCount, setTripCount] = useState(0);
