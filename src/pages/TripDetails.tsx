@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight, Sparkles, Crown, RotateCcw } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Train, Bus, Ship, ChevronRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MemoryCard from "@/components/shared/MemoryCard";
 import InlineItineraryGenerator from "@/components/trip/InlineItineraryGenerator";
+import ItineraryDayCard from "@/components/trip/ItineraryDayCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
