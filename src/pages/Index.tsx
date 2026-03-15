@@ -147,7 +147,12 @@ const Index = () => {
           </h1>
           <p className="text-xs text-muted-foreground italic">Every journey becomes a story.</p>
         </div>
-        <NotificationCenter />
+        <div className="flex items-center gap-2">
+          <button onClick={toggleTheme} className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-colors">
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          <NotificationCenter />
+        </div>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}>
