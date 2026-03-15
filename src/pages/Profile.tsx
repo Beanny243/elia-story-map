@@ -45,7 +45,14 @@ const Profile = () => {
           {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?"}
         </div>
         <div>
-          <h1 className="text-xl font-display font-bold text-foreground">{profile?.display_name || "Traveler"}</h1>
+          <div className="flex items-center gap-1.5">
+            <h1 className="text-xl font-display font-bold text-foreground">{profile?.display_name || "Traveler"}</h1>
+            {isPremium && (
+              <span className="inline-flex items-center gap-0.5 bg-primary/15 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                <Crown className="h-3 w-3" /> PRO
+              </span>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground">{profile?.bio || "Exploring the world 🌎"}</p>
         </div>
       </motion.div>
