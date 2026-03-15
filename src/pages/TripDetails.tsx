@@ -140,6 +140,13 @@ const TripDetails = () => {
             {itinerary.length === 0 ? (
               <div className="space-y-3 py-2">
                 <p className="text-sm text-muted-foreground text-center">No itinerary items yet.</p>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  onClick={handleAddDay}
+                >
+                  <Plus className="h-4 w-4" /> Add Day Manually
+                </Button>
                 <InlineItineraryGenerator
                   trip={trip}
                   onSaved={(items) =>
@@ -169,7 +176,6 @@ const TripDetails = () => {
                       const newList = [...itinerary];
                       const prev = newList[i - 1];
                       const curr = newList[i];
-                      // Swap day_numbers
                       const tempDay = prev.day_number;
                       newList[i - 1] = { ...curr, day_number: tempDay };
                       newList[i] = { ...prev, day_number: curr.day_number };
@@ -197,6 +203,13 @@ const TripDetails = () => {
                     }}
                   />
                 ))}
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl gap-2 border-dashed border-muted-foreground/30"
+                  onClick={handleAddDay}
+                >
+                  <Plus className="h-4 w-4" /> Add Day
+                </Button>
                 <InlineItineraryGenerator
                   trip={trip}
                   onSaved={(items) =>
