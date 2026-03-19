@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SUBSCRIPTION_TIERS, getTierByPriceId, TierKey } from "@/lib/subscription-tiers";
 import { FREE_LIMITS } from "@/hooks/useSubscriptionGate";
+import { openCheckout } from "@/lib/mobile";
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ const Subscription = () => {
       });
       if (error) throw error;
       if (data?.url) {
-        window.open(data.url, "_blank");
+        // Use mobile-aware checkout helper
+        await openCheckout(data.url);
       }
     } catch (err: any) {
       toast({ title: "Checkout failed", description: err.message, variant: "destructive" });
