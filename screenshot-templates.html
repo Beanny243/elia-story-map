@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliamap - Screenshot Templates</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            padding: 40px 20px;
+            color: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: #888;
+            font-size: 14px;
+        }
+        .screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .screenshot {
+            background: #16213e;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid #0f3460;
+        }
+        .phone {
+            aspect-ratio: 9/19;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .label {
+            padding: 12px 20px;
+            background: #0f3460;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e94560;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Screenshot 1 - Welcome */
+        .welcome .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin: 40px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        .welcome h2 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .welcome p {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 0 10px;
+        }
+        .welcome .cta {
+            margin-top: auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        /* Screenshot 2 - Trip List */
+        .trip-list .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .trip-list h3 {
+            font-size: 20px;
+        }
+        .trip-card {
+            background: #0f3460;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .trip-card .title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .trip-card .meta {
+            font-size: 12px;
+            color: #888;
+        }
+        .trip-card .image {
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+        /* Screenshot 3 - Map */
+        .map-view .map-area {
+            flex: 1;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            border-radius: 16px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .map-view .pin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #e94560;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+        }
+        .map-view .pin:nth-child(1) { top: 30%; left: 30%; }
+        .map-view .pin:nth-child(2) { top: 50%; left: 60%; }
+        .map-view .pin:nth-child(3) { top: 70%; left: 40%; }
+        .map-view .location-bar {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        /* Screenshot 4 - AI Itinerary */
+        .ai-view .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .ai-view .ai-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ai-view .day-card {
+            background: #0f3460;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .ai-view .day-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #667eea;
+            margin-bottom: 6px;
+        }
+        .ai-view .activity {
+            font-size: 12px;
+            color: #ccc;
+            padding: 4px 0;
+        }
+        /* Screenshot 5 - Memories */
+        .memories .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .memories .photo {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            opacity: 0.7;
+        }
+        .memories .caption {
+            grid-column: 1 / -1;
+            background: #0f3460;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        /* Screenshot 6 - Subscription */
+        .premium .crown {
+            text-align: center;
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        .premium h4 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .premium .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #0f3460;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .premium .check {
+            color: #4ade80;
+        }
+        .premium .price {
+            margin-top: auto;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .note {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-top: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Eliamap Screenshot Templates</h1>
+        <p>6 required screenshots for Google Play Store • 9:19 aspect ratio</p>
+    </div>
+
+    <div class="screenshots">
+        <!-- Screenshot 1: Welcome -->
+        <div class="screenshot">
+            <div class="label">1. Welcome / Value Prop</div>
+            <div class="phone welcome">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="content">
+                    <div class="logo">🗺️</div>
+                    <h2>Eliamap</h2>
+                    <p>Plan trips. Track memories. Discover hidden spots.</p>
+                    <div class="cta">Start Your Journey</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot 2: Trip List -->
+        <div class="screenshot">
+            <div class="label">2. Trip Planning</div>
+            <div class="phone trip-list">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="nav">
+                    <h3>My Trips</h3>
+                    <span>+</span>
+                </div>
+                <div class="content">
+                    <div class="trip-card">
+                        <div class="image"></div>
+                        <div class="title">Japan Adventure</div>
+                        <div class="meta">14 days • 8 spots • Mar 2026</div>
+                    </div>
+                    <div class="trip-card">
+                        <div class="image"></div>
+                        <div class="title">Weekend in Paris</div>
+                        <div class="meta">3 days • 5 spots • Dec 2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot 3: Map -->
+        <div class="screenshot">
+            <div class="label">3. Interactive Map</div>
+            <div class="phone map-view">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="content">
+                    <div class="map-area">
+                        <div class="pin"></div>
+                        <div class="pin"></div>
+                        <div class="pin"></div>
+                    </div>
+                    <div class="location-bar">
+                        <strong>Tokyo Station</strong>
+                        <div style="font-size: 11px; color: #888; margin-top: 4px;">
+                            Added to Japan Adventure
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot 4: AI Itinerary -->
+        <div class="screenshot">
+            <div class="label">4. AI Itinerary</div>
+            <div class="phone ai-view">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="ai-header">
+                    <div class="ai-icon">✨</div>
+                    <div>
+                        <div style="font-weight: 600;">AI Itinerary</div>
+                        <div style="font-size: 11px; color: #888;">Generated for Japan Trip</div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="day-card">
+                        <div class="day-title">Day 1 - Arrival</div>
+                        <div class="activity">🛬 Narita Airport pickup</div>
+                        <div class="activity">🍜 Dinner at Ichiran Ramen</div>
+                        <div class="activity">😴 Rest at Shinjuku Hotel</div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-title">Day 2 - Exploration</div>
+                        <div class="activity">🌸 Senso-ji Temple</div>
+                        <div class="activity">🍣 Tsukiji Outer Market</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot 5: Memories -->
+        <div class="screenshot">
+            <div class="label">5. Memory Journal</div>
+            <div class="phone memories">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <h3 style="margin-bottom: 15px;">Memories</h3>
+                <div class="content">
+                    <div class="grid">
+                        <div class="photo"></div>
+                        <div class="photo"></div>
+                        <div class="photo"></div>
+                        <div class="photo"></div>
+                    </div>
+                    <div class="caption">
+                        "The sunset at Shibuya crossing was unreal. Japan trip memories forever. 🇯🇵"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot 6: Premium -->
+        <div class="screenshot">
+            <div class="label">6. Premium Features</div>
+            <div class="phone premium">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>📶 🔋</span>
+                </div>
+                <div class="crown">👑</div>
+                <h4>Go Premium</h4>
+                <div class="content">
+                    <div class="feature">
+                        <span class="check">✓</span>
+                        <span>Unlimited trips</span>
+                    </div>
+                    <div class="feature">
+                        <span class="check">✓</span>
+                        <span>AI itinerary generation</span>
+                    </div>
+                    <div class="feature">
+                        <span class="check">✓</span>
+                        <span>Unlimited memories</span>
+                    </div>
+                    <div class="feature">
+                        <span class="check">✓</span>
+                        <span>Advanced map features</span>
+                    </div>
+                    <div class="price">Start Free Trial</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="note">
+        <strong>How to use:</strong> Open this file in a browser. Take actual screenshots from your app 
+        matching these layouts. Upload to Play Console in this order. Recommended: 6-8 screenshots total.<br><br>
+        Required dimensions: 1080px wide minimum (9:19 aspect ratio for phones)
+    </div>
+</body>
+</html>
