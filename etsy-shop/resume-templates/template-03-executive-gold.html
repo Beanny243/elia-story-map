@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Resume - Gold</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .resume {
+            width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            background: white;
+            padding: 0.7in 0.8in;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Elegant Header */
+        .header {
+            text-align: center;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+            border-bottom: 3px double #C9A227;
+        }
+        
+        .name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1A1A1A;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            font-size: 13px;
+            color: #666;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        
+        .contact-bar {
+            margin-top: 20px;
+            font-size: 9.5px;
+            color: #555;
+            letter-spacing: 1px;
+        }
+        
+        .contact-bar span {
+            margin: 0 15px;
+        }
+        
+        .contact-bar span:not(:last-child)::after {
+            content: "•";
+            margin-left: 30px;
+            color: #C9A227;
+        }
+        
+        /* Section Styling */
+        .section {
+            margin-bottom: 28px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1A1A1A;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+        
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, #C9A227, transparent);
+        }
+        
+        /* Executive Summary */
+        .executive-summary {
+            font-size: 10.5px;
+            line-height: 1.7;
+            color: #444;
+            text-align: justify;
+            font-style: italic;
+        }
+        
+        /* Core Competencies */
+        .competencies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .competency-tag {
+            background: #FAF8F3;
+            border: 1px solid #C9A227;
+            padding: 5px 12px;
+            font-size: 9px;
+            color: #1A1A1A;
+            letter-spacing: 1px;
+        }
+        
+        /* Experience */
+        .experience-item {
+            margin-bottom: 22px;
+        }
+        
+        .exp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 6px;
+        }
+        
+        .exp-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A1A1A;
+            letter-spacing: 0.5px;
+        }
+        
+        .exp-date {
+            font-size: 9.5px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        .exp-company {
+            font-size: 10.5px;
+            color: #C9A227;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .exp-desc {
+            font-size: 10px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .achievements {
+            list-style: none;
+            margin-top: 8px;
+        }
+        
+        .achievements li {
+            font-size: 9.5px;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 4px;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .achievements li::before {
+            content: "◆";
+            position: absolute;
+            left: 0;
+            color: #C9A227;
+            font-size: 7px;
+            top: 2px;
+        }
+        
+        /* Education */
+        .education-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .edu-item {
+            padding-left: 15px;
+            border-left: 2px solid #C9A227;
+        }
+        
+        .edu-degree {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+        
+        .edu-school {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .edu-year {
+            font-size: 9px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* Board Positions */
+        .board-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .board-org {
+            font-size: 10px;
+            color: #444;
+        }
+        
+        .board-role {
+            font-size: 9.5px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .resume {
+                box-shadow: none;
+                width: 100%;
+                padding: 0.6in 0.7in;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="name">VICTORIA REYNOLDS</h1>
+            <p class="title">Chief Operating Officer</p>
+            <div class="contact-bar">
+                <span>victoria.reynolds@email.com</span>
+                <span>(555) 234-5678</span>
+                <span>linkedin.com/in/vreynolds</span>
+                <span>Chicago, IL</span>
+            </div>
+        </div>
+        
+        <!-- Executive Summary -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Executive Summary</h2>
+                <div class="section-line"></div>
+            </div>
+            <p class="executive-summary">
+                Results-driven C-suite executive with 15+ years of experience leading operations, strategy, and transformation initiatives for Fortune 500 companies. Proven track record of driving $100M+ operational improvements, scaling global teams to 500+ employees, and delivering sustainable growth. Expert in M&A integration, digital transformation, and building high-performance cultures that achieve 95%+ employee retention.
+            </p>
+        </div>
+        
+        <!-- Core Competencies -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Core Competencies</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="competencies">
+                <span class="competency-tag">Strategic Planning</span>
+                <span class="competency-tag">P&L Management</span>
+                <span class="competency-tag">Operational Excellence</span>
+                <span class="competency-tag">M&A Integration</span>
+                <span class="competency-tag">Digital Transformation</span>
+                <span class="competency-tag">Change Management</span>
+                <span class="competency-tag">Global Operations</span>
+                <span class="competency-tag">Board Relations</span>
+                <span class="competency-tag">Team Leadership</span>
+                <span class="competency-tag">Stakeholder Management</span>
+            </div>
+        </div>
+        
+        <!-- Professional Experience -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Professional Experience</h2>
+                <div class="section-line"></div>
+            </div>
+            
+            <div class="experience-item">
+                <div class="exp-header">
+                    <span class="exp-title">Chief Operating Officer</span>
+                    <span class="exp-date">2019 – Present</span>
+                </div>
+                <div class="exp-company">NEXUS GLOBAL SOLUTIONS | Chicago, IL</div>
+                <p class="exp-desc">
+                    Lead operations for $500M technology services firm with 2,500 employees across 12 countries. Report directly to CEO and serve on executive leadership team.
+                </p>
+                <ul class="achievements">
+                    <li>Restructured global operations, achieving $45M annual cost savings while improving service delivery by 25%</li>
+                    <li>Led post-merger integration of 3 acquired companies, retaining 98% of key talent and achieving synergy targets 6 months ahead of schedule</li>
+                    <li>Implemented enterprise-wide digital transformation, reducing operational costs by 30% and improving customer satisfaction scores to 4.8/5</li>
+                    <li>Built executive succession pipeline, promoting 8 internal candidates to VP and Director-level positions</li>
+                    <li>Negotiated strategic vendor partnerships worth $120M annually, securing 15% cost reduction and enhanced SLA performance</li>
+                </ul>
+            </div>
+            
+            <div class="experience-item">
+                <div class="exp-header">
+                    <span class="exp-title">Senior Vice President, Operations</span>
+                    <span class="exp-date">2015 – 2019</span>
+                </div>
+                <div class="exp-company">MERIDIAN INDUSTRIES | New York, NY</div>
+                <p class="exp-desc">
+                    Directed operations for manufacturing division generating $300M annual revenue. Managed 1,200 employees across 8 facilities in North America and Europe.
+                </p>
+                <ul class="achievements">
+                    <li>Transformed operational efficiency, increasing OEE (Overall Equipment Effectiveness) from 68% to 89% within 24 months</li>
+                    <li>Led ISO 9001 and Six Sigma initiatives, reducing defect rates by 60% and saving $12M in quality costs</li>
+                    <li>Optimized supply chain network, reducing inventory holding costs by $25M while improving fill rates to 99.2%</li>
+                    <li>Established shared services center, consolidating back-office functions and achieving $8M annual savings</li>
+                </ul>
+            </div>
+            
+            <div class="experience-item">
+                <div class="exp-header">
+                    <span class="exp-title">Director of Business Operations</span>
+                    <span class="exp-date">2010 – 2015</span>
+                </div>
+                <div class="exp-company">STRATACORP | Boston, MA</div>
+                <ul class="achievements">
+                    <li>Managed $50M P&L, consistently delivering 10%+ EBITDA growth year-over-year</li>
+                    <li>Led cross-functional team of 150 in rollout of new ERP system, completed on-time and under budget</li>
+                    <li>Developed operational playbook adopted company-wide, improving process standardization across 20+ locations</li>
+                </ul>
+            </div>
+            
+            <div class="experience-item">
+                <div class="exp-header">
+                    <span class="exp-title">Operations Manager</span>
+                    <span class="exp-date">2006 – 2010</span>
+                </div>
+                <div class="exp-company">CONSULTING GROUP LLP | Washington, DC</div>
+            </div>
+        </div>
+        
+        <!-- Education -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Education</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="education-grid">
+                <div class="edu-item">
+                    <div class="edu-degree">Master of Business Administration (MBA)</div>
+                    <div class="edu-school">Kellogg School of Management, Northwestern University</div>
+                    <div class="edu-year">Graduated with Distinction, 2006</div>
+                </div>
+                <div class="edu-item">
+                    <div class="edu-degree">Bachelor of Science in Industrial Engineering</div>
+                    <div class="edu-school">Georgia Institute of Technology</div>
+                    <div class="edu-year">Summa Cum Laude, 2004</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Board Positions -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Board & Advisory Positions</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="board-item">
+                <span class="board-org">Women in Leadership Foundation</span>
+                <span class="board-role">Board Member (2020 – Present)</span>
+            </div>
+            <div class="board-item">
+                <span class="board-org">TechStart Ventures</span>
+                <span class="board-role">Advisory Board (2018 – Present)</span>
+            </div>
+            <div class="board-item">
+                <span class="board-org">Chicago Business Council</span>
+                <span class="board-role">Operations Committee Chair (2019 – 2022)</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

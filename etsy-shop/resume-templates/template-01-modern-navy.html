@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern ATS Resume - Navy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .resume {
+            width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            background: white;
+            padding: 0.6in;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #1E3A5F;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1E3A5F;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        
+        .title {
+            font-size: 14px;
+            color: #4A90A4;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .contact {
+            font-size: 10px;
+            color: #555;
+        }
+        
+        .contact span {
+            margin: 0 8px;
+        }
+        
+        .contact span:not(:last-child)::after {
+            content: "|";
+            margin-left: 16px;
+            color: #ccc;
+        }
+        
+        /* Section Headers */
+        .section {
+            margin-bottom: 18px;
+        }
+        
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1E3A5F;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #1E3A5F;
+            padding-bottom: 4px;
+            margin-bottom: 10px;
+        }
+        
+        /* Summary */
+        .summary {
+            font-size: 10.5px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        /* Experience */
+        .job {
+            margin-bottom: 12px;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 3px;
+        }
+        
+        .job-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1E3A5F;
+        }
+        
+        .job-company {
+            font-size: 10.5px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .job-date {
+            font-size: 9.5px;
+            color: #777;
+            font-style: italic;
+        }
+        
+        .job-location {
+            font-size: 9.5px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        
+        .job-duties {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .job-duties li {
+            font-size: 10px;
+            line-height: 1.4;
+            color: #444;
+            margin-bottom: 2px;
+            padding-left: 12px;
+            position: relative;
+        }
+        
+        .job-duties li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #4A90A4;
+            font-size: 8px;
+        }
+        
+        /* Education */
+        .education-item {
+            margin-bottom: 8px;
+        }
+        
+        .edu-degree {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1E3A5F;
+        }
+        
+        .edu-school {
+            font-size: 10px;
+            color: #555;
+        }
+        
+        .edu-date {
+            font-size: 9.5px;
+            color: #777;
+            font-style: italic;
+        }
+        
+        /* Skills */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .skill-tag {
+            background: #f0f4f8;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 9.5px;
+            color: #1E3A5F;
+            border: 1px solid #1E3A5F;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .resume {
+                box-shadow: none;
+                width: 100%;
+                padding: 0.5in;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="name">JANE DOE</h1>
+            <p class="title">Marketing Manager & Brand Strategist</p>
+            <div class="contact">
+                <span>jane.doe@email.com</span>
+                <span>(555) 123-4567</span>
+                <span>linkedin.com/in/janedoe</span>
+                <span>New York, NY</span>
+            </div>
+        </div>
+        
+        <!-- Summary -->
+        <div class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <p class="summary">
+                Results-driven Marketing Manager with 7+ years of experience developing and executing integrated marketing campaigns that increased brand awareness by 40% and drove $2M+ in revenue growth. Proven expertise in digital marketing, team leadership, and data-driven strategy optimization. Passionate about creating compelling brand narratives and delivering measurable business outcomes.
+            </p>
+        </div>
+        
+        <!-- Experience -->
+        <div class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="job">
+                <div class="job-header">
+                    <span class="job-title">Senior Marketing Manager</span>
+                    <span class="job-date">Jan 2021 – Present</span>
+                </div>
+                <div class="job-company">TechCorp Industries</div>
+                <div class="job-location">New York, NY</div>
+                <ul class="job-duties">
+                    <li>Lead a team of 8 marketing professionals, driving 35% increase in lead generation through integrated digital campaigns</li>
+                    <li>Developed and executed annual marketing strategy resulting in $2.3M revenue growth and 25% improvement in customer acquisition cost</li>
+                    <li>Managed $500K quarterly marketing budget, optimizing spend across channels to achieve 4.2x ROAS</li>
+                    <li>Spearheaded brand refresh initiative, increasing brand recognition by 40% according to quarterly surveys</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <span class="job-title">Marketing Specialist</span>
+                    <span class="job-date">Jun 2018 – Dec 2020</span>
+                </div>
+                <div class="job-company">Growth Dynamics Agency</div>
+                <div class="job-location">Boston, MA</div>
+                <ul class="job-duties">
+                    <li>Managed social media presence across 5 platforms, growing follower base by 150% and engagement by 80%</li>
+                    <li>Created content strategy that generated 500+ qualified leads per month through organic and paid channels</li>
+                    <li>Collaborated with sales team to develop marketing collateral, contributing to 20% increase in closed deals</li>
+                    <li>Analyzed campaign performance metrics using Google Analytics and HubSpot, presenting monthly reports to leadership</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <span class="job-title">Marketing Coordinator</span>
+                    <span class="job-date">Aug 2016 – May 2018</span>
+                </div>
+                <div class="job-company">StartUp Ventures Inc.</div>
+                <div class="job-location">San Francisco, CA</div>
+                <ul class="job-duties">
+                    <li>Supported launch of 3 new product lines, coordinating cross-functional teams and managing project timelines</li>
+                    <li>Assisted in planning and executing trade show presence, resulting in 200+ qualified leads per event</li>
+                    <li>Maintained marketing asset library and ensured brand consistency across all communications</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Education -->
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-item">
+                <div class="edu-degree">Bachelor of Science in Marketing</div>
+                <div class="edu-school">University of California, Berkeley</div>
+                <div class="edu-date">Graduated: May 2016 | GPA: 3.8/4.0</div>
+            </div>
+        </div>
+        
+        <!-- Skills -->
+        <div class="section">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-container">
+                <span class="skill-tag">Strategic Planning</span>
+                <span class="skill-tag">Digital Marketing</span>
+                <span class="skill-tag">Team Leadership</span>
+                <span class="skill-tag">Google Analytics</span>
+                <span class="skill-tag">SEO/SEM</span>
+                <span class="skill-tag">Content Strategy</span>
+                <span class="skill-tag">Social Media Management</span>
+                <span class="skill-tag">Marketing Automation</span>
+                <span class="skill-tag">Budget Management</span>
+                <span class="skill-tag">Brand Development</span>
+                <span class="skill-tag">Data Analysis</span>
+                <span class="skill-tag">HubSpot</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
