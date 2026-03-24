@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern ATS Resume - Forest</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .resume { width: 8.5in; min-height: 11in; margin: 0 auto; background: white; padding: 0.6in; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px solid #2D5016; padding-bottom: 15px; margin-bottom: 20px; }
+        .name { font-size: 32px; font-weight: 700; color: #2D5016; letter-spacing: 2px; margin-bottom: 5px; }
+        .title { font-size: 14px; color: #556B2F; font-weight: 500; margin-bottom: 10px; }
+        .contact { font-size: 10px; color: #555; }
+        .contact span { margin: 0 8px; }
+        .contact span:not(:last-child)::after { content: "|"; margin-left: 16px; color: #ccc; }
+        .section { margin-bottom: 18px; }
+        .section-title { font-size: 12px; font-weight: 700; color: #2D5016; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2D5016; padding-bottom: 4px; margin-bottom: 10px; }
+        .summary { font-size: 10.5px; line-height: 1.5; color: #333; }
+        .job { margin-bottom: 12px; }
+        .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+        .job-title { font-size: 11px; font-weight: 700; color: #2D5016; }
+        .job-company { font-size: 10.5px; color: #555; font-weight: 600; }
+        .job-date { font-size: 9.5px; color: #777; font-style: italic; }
+        .job-location { font-size: 9.5px; color: #999; margin-bottom: 5px; }
+        .job-duties { list-style: none; padding-left: 0; }
+        .job-duties li { font-size: 10px; line-height: 1.4; color: #444; margin-bottom: 2px; padding-left: 12px; position: relative; }
+        .job-duties li::before { content: "▸"; position: absolute; left: 0; color: #556B2F; font-size: 8px; }
+        .education-item { margin-bottom: 8px; }
+        .edu-degree { font-size: 11px; font-weight: 600; color: #2D5016; }
+        .edu-school { font-size: 10px; color: #555; }
+        .edu-date { font-size: 9.5px; color: #777; font-style: italic; }
+        .skills-container { display: flex; flex-wrap: wrap; gap: 6px; }
+        .skill-tag { background: #f5f8f3; padding: 3px 10px; border-radius: 3px; font-size: 9.5px; color: #2D5016; border: 1px solid #2D5016; }
+        @media print { body { background: white; padding: 0; } .resume { box-shadow: none; width: 100%; padding: 0.5in; } }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <div class="header">
+            <h1 class="name">JANE DOE</h1>
+            <p class="title">Marketing Manager & Brand Strategist</p>
+            <div class="contact">
+                <span>jane.doe@email.com</span>
+                <span>(555) 123-4567</span>
+                <span>linkedin.com/in/janedoe</span>
+                <span>New York, NY</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <p class="summary">Results-driven Marketing Manager with 7+ years of experience developing and executing integrated marketing campaigns that increased brand awareness by 40% and drove $2M+ in revenue growth.</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="job">
+                <div class="job-header">
+                    <span class="job-title">Senior Marketing Manager</span>
+                    <span class="job-date">Jan 2021 – Present</span>
+                </div>
+                <div class="job-company">TechCorp Industries</div>
+                <div class="job-location">New York, NY</div>
+                <ul class="job-duties">
+                    <li>Lead a team of 8 marketing professionals, driving 35% increase in lead generation</li>
+                    <li>Developed annual marketing strategy resulting in $2.3M revenue growth</li>
+                    <li>Managed $500K quarterly marketing budget, achieving 4.2x ROAS</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <span class="job-title">Marketing Specialist</span>
+                    <span class="job-date">Jun 2018 – Dec 2020</span>
+                </div>
+                <div class="job-company">Growth Dynamics Agency</div>
+                <div class="job-location">Boston, MA</div>
+                <ul class="job-duties">
+                    <li>Managed social media presence, growing follower base by 150%</li>
+                    <li>Created content strategy generating 500+ qualified leads per month</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-item">
+                <div class="edu-degree">Bachelor of Science in Marketing</div>
+                <div class="edu-school">University of California, Berkeley</div>
+                <div class="edu-date">Graduated: May 2016 | GPA: 3.8/4.0</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-container">
+                <span class="skill-tag">Strategic Planning</span>
+                <span class="skill-tag">Digital Marketing</span>
+                <span class="skill-tag">Team Leadership</span>
+                <span class="skill-tag">Google Analytics</span>
+                <span class="skill-tag">SEO/SEM</span>
+                <span class="skill-tag">Content Strategy</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

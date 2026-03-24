@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Resume - Teal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+        .resume { width: 8.5in; min-height: 11in; margin: 0 auto; background: white; display: grid; grid-template-columns: 1fr 2fr; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .sidebar { background: #4ECDC4; color: white; padding: 40px 25px; }
+        .photo-placeholder { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.3); margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; font-size: 12px; text-align: center; border: 3px solid white; }
+        .sidebar-section { margin-bottom: 25px; }
+        .sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-bottom: 2px solid rgba(255,255,255,0.5); padding-bottom: 5px; }
+        .contact-item { font-size: 9.5px; margin-bottom: 8px; line-height: 1.4; }
+        .contact-label { font-weight: 600; display: block; font-size: 8px; text-transform: uppercase; opacity: 0.8; margin-bottom: 2px; }
+        .skill-bar { margin-bottom: 10px; }
+        .skill-name { font-size: 9px; margin-bottom: 4px; }
+        .skill-progress { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; }
+        .skill-fill { height: 100%; background: white; border-radius: 3px; }
+        .main { padding: 40px 35px; }
+        .header { margin-bottom: 25px; }
+        .name { font-size: 38px; font-weight: 700; color: #2C3E50; line-height: 1.1; margin-bottom: 8px; }
+        .title { font-size: 14px; color: #4ECDC4; font-weight: 500; letter-spacing: 1px; }
+        .section { margin-bottom: 22px; }
+        .section-title { font-size: 12px; font-weight: 700; color: #2C3E50; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; }
+        .section-title::before { content: ""; display: inline-block; width: 20px; height: 3px; background: #4ECDC4; margin-right: 10px; }
+        .about { font-size: 10.5px; line-height: 1.6; color: #555; }
+        .job { margin-bottom: 18px; position: relative; padding-left: 20px; border-left: 2px solid #95E1D3; }
+        .job::before { content: ""; position: absolute; left: -6px; top: 2px; width: 10px; height: 10px; background: #4ECDC4; border-radius: 50%; }
+        .job-title { font-size: 12px; font-weight: 700; color: #2C3E50; }
+        .job-company { font-size: 10.5px; color: #4ECDC4; font-weight: 600; margin-bottom: 2px; }
+        .job-date { font-size: 9px; color: #888; font-style: italic; margin-bottom: 6px; }
+        .job-duties { list-style: none; }
+        .job-duties li { font-size: 9.5px; line-height: 1.5; color: #555; margin-bottom: 3px; padding-left: 12px; position: relative; }
+        .job-duties li::before { content: "→"; position: absolute; left: 0; color: #4ECDC4; }
+        .portfolio-item { background: #f8f9fa; padding: 12px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid #95E1D3; }
+        .portfolio-title { font-size: 10px; font-weight: 600; color: #2C3E50; }
+        .portfolio-desc { font-size: 9px; color: #666; }
+        @media print { body { background: white; padding: 0; } .resume { box-shadow: none; width: 100%; } }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <div class="sidebar">
+            <div class="photo-placeholder">YOUR<br>PHOTO</div>
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Contact</h3>
+                <div class="contact-item"><span class="contact-label">Email</span>alex.chen@email.com</div>
+                <div class="contact-item"><span class="contact-label">Phone</span>(555) 987-6543</div>
+                <div class="contact-item"><span class="contact-label">Website</span>alexchendesign.com</div>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Skills</h3>
+                <div class="skill-bar"><div class="skill-name">UI/UX Design</div><div class="skill-progress"><div class="skill-fill" style="width: 95%"></div></div></div>
+                <div class="skill-bar"><div class="skill-name">Figma</div><div class="skill-progress"><div class="skill-fill" style="width: 92%"></div></div></div>
+                <div class="skill-bar"><div class="skill-name">HTML/CSS</div><div class="skill-progress"><div class="skill-fill" style="width: 75%"></div></div></div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="header">
+                <h1 class="name">ALEX<br>CHEN</h1>
+                <p class="title">SENIOR UI/UX DESIGNER</p>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">About Me</h2>
+                <p class="about">Creative designer with 6+ years of experience crafting intuitive digital experiences for global brands.</p>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Experience</h2>
+                <div class="job">
+                    <div class="job-title">Senior UI/UX Designer</div>
+                    <div class="job-company">Creative Studio LA</div>
+                    <div class="job-date">March 2020 – Present</div>
+                    <ul class="job-duties">
+                        <li>Lead design for 15+ client projects</li>
+                        <li>Redesigned e-commerce platform, increasing conversion by 35%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
