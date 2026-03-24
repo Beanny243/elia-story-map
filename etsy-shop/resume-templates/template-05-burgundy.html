@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Level Resume - Burgundy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .resume { width: 8.5in; min-height: 11in; margin: 0 auto; background: white; padding: 0.7in; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px solid #800020; }
+        .name { font-size: 30px; font-weight: 700; color: #800020; margin-bottom: 8px; }
+        .contact { font-size: 10px; color: #555; }
+        .contact span { margin: 0 10px; }
+        .section { margin-bottom: 22px; }
+        .section-title { font-size: 12px; font-weight: 700; color: #800020; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 12px; }
+        .objective { font-size: 10.5px; line-height: 1.5; color: #444; font-style: italic; }
+        .education-featured { background: #faf5f5; padding: 15px; border-left: 4px solid #800020; margin-bottom: 15px; }
+        .edu-school-name { font-size: 13px; font-weight: 700; color: #800020; margin-bottom: 5px; }
+        .edu-details { font-size: 10.5px; color: #555; margin-bottom: 8px; }
+        .edu-highlights { list-style: none; }
+        .edu-highlights li { font-size: 10px; color: #444; margin-bottom: 3px; padding-left: 15px; position: relative; }
+        .edu-highlights li::before { content: "✓"; position: absolute; left: 0; color: #800020; font-weight: bold; }
+        .job { margin-bottom: 15px; }
+        .job-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .job-title { font-size: 11px; font-weight: 700; color: #800020; }
+        .job-date { font-size: 9.5px; color: #888; }
+        .job-company { font-size: 10px; color: #555; font-style: italic; margin-bottom: 5px; }
+        .job-duties { list-style: none; }
+        .job-duties li { font-size: 10px; line-height: 1.4; color: #444; margin-bottom: 2px; padding-left: 12px; position: relative; }
+        .job-duties li::before { content: "•"; position: absolute; left: 0; color: #800020; }
+        .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .skill-category { font-size: 10px; }
+        .skill-label { font-weight: 600; color: #800020; margin-bottom: 3px; }
+        .skill-items { color: #555; }
+        @media print { body { background: white; padding: 0; } .resume { box-shadow: none; width: 100%; padding: 0.6in; } }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <div class="header">
+            <h1 class="name">MICHAEL CHEN</h1>
+            <div class="contact">
+                <span>michael.chen@email.com</span>
+                <span>(555) 876-5432</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Objective</h2>
+            <p class="objective">Recent Computer Science graduate seeking Junior Software Engineer position.</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-featured">
+                <div class="edu-school-name">University of Texas at Austin</div>
+                <div class="edu-details">Bachelor of Science in Computer Science | GPA: 3.7/4.0</div>
+                <ul class="edu-highlights">
+                    <li>Dean's List (All Semesters)</li>
+                    <li>HackTX Winner (2023)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-label">Languages:</div>
+                    <div class="skill-items">JavaScript, Python, SQL</div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-label">Frameworks:</div>
+                    <div class="skill-items">React, Node.js</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

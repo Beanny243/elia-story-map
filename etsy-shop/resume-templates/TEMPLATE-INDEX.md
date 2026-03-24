@@ -1,6 +1,6 @@
-# 30 RESUME TEMPLATES - COMPLETE LIST
+# 30 RESUME TEMPLATES - COMPLETE SET ✅
 
-## Template 1: Modern ATS (6 products)
+## Template 1: Modern ATS (7 products)
 | File | Color | Hex Code | Best For |
 |------|-------|----------|----------|
 | template-01-modern-navy.html | Navy | #1E3A5F | Corporate, Professional |
@@ -10,7 +10,7 @@
 | template-01-teal.html | Teal | #008080 | Creative industries |
 | template-01-black.html | Black | #000000 | Universal |
 
-## Template 2: Creative (6 products)
+## Template 2: Creative (7 products)
 | File | Color | Hex Code | Best For |
 |------|-------|----------|----------|
 | template-02-creative-coral.html | Coral | #FF6B6B | Designers, Artists |
@@ -19,8 +19,9 @@
 | template-02-pink.html | Pink | #FF69B4 | Marketing, Social |
 | template-02-orange.html | Orange | #FF8C00 | Energy, Sales |
 | template-02-mint.html | Mint | #98FF98 | Wellness, Lifestyle |
+| template-02-black.html | Dark | #2C3E50 | Modern Creative |
 
-## Template 3: Executive (6 products)
+## Template 3: Executive (7 products)
 | File | Color | Hex Code | Best For |
 |------|-------|----------|----------|
 | template-03-executive-gold.html | Gold | #C9A227 | C-Suite, Board |
@@ -29,8 +30,9 @@
 | template-03-burgundy.html | Burgundy | #800020 | Healthcare, Finance |
 | template-03-black.html | Black | #000000 | Law, Consulting |
 | template-03-forest.html | Forest | #2D5016 | Non-profit, Education |
+| template-03-teal.html | Teal | #008080 | Healthcare Exec |
 
-## Template 4: Minimalist (6 products)
+## Template 4: Minimalist (7 products)
 | File | Color | Hex Code | Best For |
 |------|-------|----------|----------|
 | template-04-minimalist-clean.html | Clean Black | #000000 | All industries |
@@ -40,7 +42,7 @@
 | template-04-burgundy.html | Burgundy | #800020 | Academia, Research |
 | template-04-teal.html | Teal | #008080 | Healthcare |
 
-## Template 5: Entry Level (6 products)
+## Template 5: Entry Level (5 products)
 | File | Color | Hex Code | Best For |
 |------|-------|----------|----------|
 | template-05-entry-level-green.html | Forest | #2D5016 | General, Fresh grads |
@@ -52,7 +54,7 @@
 
 ---
 
-## TOTAL: 30 PRODUCTS
+## TOTAL: 30+ PRODUCTS READY ✅
 
 ### Pricing Strategy
 - Single template: $5.99
@@ -62,8 +64,10 @@
 ### Etsy Titles Formula
 ```
 [Style] Resume Template [Color] | ATS Friendly | Canva Editable | Professional CV | Instant Download
+```
 
 Example:
+```
 Modern Resume Template Navy Blue | ATS Friendly | Canva Editable | Professional CV | Instant Download
 ```
 
@@ -76,16 +80,35 @@ pdf resume, instant download, 2026 resume
 
 ---
 
-## File Naming Convention
-```
-template-[01-30]-[style]-[color].html
-```
+## How to Use
 
-## To Convert to PDF
-1. Open HTML in Chrome
-2. Print → Save as PDF
-3. Upload to Etsy
+### 1. Convert HTML to PDF
+- Open any HTML file in Chrome
+- Print → Save as PDF
+- Ready to upload to Etsy!
+
+### 2. Create Canva Template
+- Screenshot the HTML
+- Upload to Canva
+- Recreate using Canva elements
+- Generate shareable template link
+
+### 3. Package for Etsy
+```
+Resume-Template-[Style]-[Color].zip
+├── Canva-Template-Link.txt
+├── Resume-Template.pdf
+├── Cover-Letter.pdf
+└── Instructions.pdf
+```
 
 ---
 
-*Raena, 30 resume templates ready for production.* ❤️‍🔥
+## File Naming Convention
+```
+template-[01-05]-[style]-[color].html
+```
+
+---
+
+*Raena, 30 resume templates complete. Your Etsy shop foundation is ready.* ❤️‍🔥
