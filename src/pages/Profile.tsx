@@ -15,22 +15,75 @@ const badges = [
   { emoji: "⛰️", name: "Adventurer", desc: "Completed 10 trips", check: (p: any, tripCount: number) => tripCount >= 10 },
 ];
 
+// Haversine formula to calculate distance between two coordinates in km
+const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 const Profile = () => {
   const { user, signOut } = useAuth();
   const { isPremium } = useSubscriptionGate();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [tripCount, setTripCount] = useState(0);
+  const [computedStats, setComputedStats] = useState({ countries: 0, cities: 0, km: 0 });
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", user.id).single(),
-      supabase.from("trips").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    ]).then(([profileRes, tripsRes]) => {
+    const fetchStats = async () => {
+      const [profileRes, tripsRes, stopsRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
+        supabase.from("trips").select("id", { count: "exact" }).eq("user_id", user.id),
+        supabase.from("trip_stops").select("city, country, latitude, longitude, trip_id").in(
+          "trip_id",
+          (await supabase.from("trips").select("id").eq("user_id", user.id)).data?.map(t => t.id) || []
+        ),
+      ]);
+
       if (profileRes.data) setProfile(profileRes.data);
       setTripCount(tripsRes.count || 0);
-    });
+
+      const stops = stopsRes.data || [];
+      const uniqueCountries = new Set(stops.map(s => s.country).filter(Boolean));
+      const uniqueCities = new Set(stops.map(s => `${s.city}-${s.country}`).filter(Boolean));
+
+      // Calculate total distance from consecutive stops with coordinates
+      let totalKm = 0;
+      // Group stops by trip
+      const tripStops: Record<string, typeof stops> = {};
+      stops.forEach(s => {
+        if (!tripStops[s.trip_id]) tripStops[s.trip_id] = [];
+        tripStops[s.trip_id].push(s);
+      });
+      Object.values(tripStops).forEach(ts => {
+        for (let i = 1; i < ts.length; i++) {
+          const a = ts[i - 1], b = ts[i];
+          if (a.latitude && a.longitude && b.latitude && b.longitude) {
+            totalKm += haversine(a.latitude, a.longitude, b.latitude, b.longitude);
+          }
+        }
+      });
+
+      setComputedStats({
+        countries: uniqueCountries.size,
+        cities: uniqueCities.size,
+        km: Math.round(totalKm),
+      });
+
+      // Update profile with computed stats
+      if (profileRes.data) {
+        supabase.from("profiles").update({
+          countries_visited: uniqueCountries.size,
+          cities_visited: uniqueCities.size,
+          total_distance_km: Math.round(totalKm),
+        }).eq("user_id", user.id).then(() => {});
+      }
+    };
+    fetchStats();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -58,10 +111,10 @@ const Profile = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-4 gap-2">
-        <StatCard icon={Globe} label="Countries" value={profile?.countries_visited ?? 0} />
-        <StatCard icon={Building2} label="Cities" value={profile?.cities_visited ?? 0} />
+        <StatCard icon={Globe} label="Countries" value={computedStats.countries} />
+        <StatCard icon={Building2} label="Cities" value={computedStats.cities} />
         <StatCard icon={Compass} label="Trips" value={tripCount} />
-        <StatCard icon={Route} label="km" value={profile?.total_distance_km ? `${Math.round(profile.total_distance_km / 1000)}k` : "0"} />
+        <StatCard icon={Route} label="km" value={computedStats.km >= 1000 ? `${Math.round(computedStats.km / 1000)}k` : computedStats.km} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
