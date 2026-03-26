@@ -14,26 +14,28 @@ export const shareContent = async (data: { title: string; text: string; url?: st
   return { shareUrl, title: data.title, text: data.text };
 };
 
+const openLink = (url: string) => {
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
 export const shareToTwitter = (text: string, url: string) => {
-  const link = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-  const w = window.open(link, '_blank', 'noopener,noreferrer');
-  if (!w) window.location.href = link;
+  openLink(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`);
 };
 
 export const shareToFacebook = (url: string) => {
-  const link = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-  const w = window.open(link, '_blank', 'noopener,noreferrer');
-  if (!w) window.location.href = link;
+  openLink(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
 };
 
 export const shareToWhatsApp = (text: string, url: string) => {
-  const link = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
-  const w = window.open(link, '_blank', 'noopener,noreferrer');
-  if (!w) window.location.href = link;
+  openLink(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`);
 };
 
 export const shareToTelegram = (text: string, url: string) => {
-  const link = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-  const w = window.open(link, '_blank', 'noopener,noreferrer');
-  if (!w) window.location.href = link;
+  openLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
 };
