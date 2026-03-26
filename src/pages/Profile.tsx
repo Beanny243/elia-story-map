@@ -111,10 +111,10 @@ const Profile = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-4 gap-2">
-        <StatCard icon={Globe} label="Countries" value={profile?.countries_visited ?? 0} />
-        <StatCard icon={Building2} label="Cities" value={profile?.cities_visited ?? 0} />
+        <StatCard icon={Globe} label="Countries" value={computedStats.countries} />
+        <StatCard icon={Building2} label="Cities" value={computedStats.cities} />
         <StatCard icon={Compass} label="Trips" value={tripCount} />
-        <StatCard icon={Route} label="km" value={profile?.total_distance_km ? `${Math.round(profile.total_distance_km / 1000)}k` : "0"} />
+        <StatCard icon={Route} label="km" value={computedStats.km >= 1000 ? `${Math.round(computedStats.km / 1000)}k` : computedStats.km} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
