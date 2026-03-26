@@ -17,7 +17,7 @@ interface ShareMenuProps {
 
 const ShareMenu = ({ title, text, url }: ShareMenuProps) => {
   const { toast } = useToast();
-  const shareUrl = url || window.location.href;
+  const shareUrl = url || "https://elia-story-map.lovable.app/community";
 
   const handleNativeShare = async () => {
     const result = await shareContent({ title, text, url: shareUrl });
