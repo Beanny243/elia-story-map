@@ -68,12 +68,7 @@ const Auth = () => {
 
         // If auto-confirm is off, user needs to verify email
         if (data.user && !data.session) {
-          toast({
-            title: "Account created!",
-            description: "Check your email to verify your account.",
-          });
-          // Save answers so they persist — we'll apply them on first login
-          // Keep onboarding_answers in localStorage for now
+          setShowVerifyScreen(true);
         }
 
         // If session exists (auto-confirm on), save answers immediately
