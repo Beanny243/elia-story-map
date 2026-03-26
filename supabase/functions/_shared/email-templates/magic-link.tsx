@@ -20,6 +20,7 @@ interface MagicLinkEmailProps {
   confirmationUrl: string
 }
 
+const SITE_NAME = 'Eliamap'
 const LOGO_URL = 'https://rzidgauuxcaymdjjqvlk.supabase.co/storage/v1/object/public/email-assets/eliamap-logo.png'
 
 export const MagicLinkEmail = ({
