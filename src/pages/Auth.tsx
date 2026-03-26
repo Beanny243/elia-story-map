@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import EliMascot from "@/components/shared/EliMascot";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, CheckCircle2, Inbox } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,13 +15,12 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showVerifyScreen, setShowVerifyScreen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Check if coming from onboarding (has answers stored)
   const hasOnboardingAnswers = !!localStorage.getItem("onboarding_answers");
 
-  // If user came from onboarding, default to signup
   useEffect(() => {
     if (hasOnboardingAnswers) {
       setIsLogin(false);
@@ -65,17 +64,10 @@ const Auth = () => {
         });
         if (error) throw error;
 
-        // If auto-confirm is off, user needs to verify email
         if (data.user && !data.session) {
-          toast({
-            title: "Account created!",
-            description: "Check your email to verify your account.",
-          });
-          // Save answers so they persist — we'll apply them on first login
-          // Keep onboarding_answers in localStorage for now
+          setShowVerifyScreen(true);
         }
 
-        // If session exists (auto-confirm on), save answers immediately
         if (data.user && data.session) {
           await saveOnboardingAnswers(data.user.id);
           navigate("/");
@@ -92,7 +84,6 @@ const Auth = () => {
     }
   };
 
-  // Listen for auth state to save onboarding answers on email verification login
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
@@ -101,6 +92,81 @@ const Auth = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  if (showVerifyScreen) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-5">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-sm space-y-8 text-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+            className="mx-auto w-20 h-20 rounded-full bg-accent/15 flex items-center justify-center"
+          >
+            <Inbox className="h-10 w-10 text-accent" />
+          </motion.div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-display font-bold text-foreground">
+              Check your inbox! 📬
+            </h1>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              We sent a verification link to
+            </p>
+            <p className="text-foreground font-semibold text-sm bg-muted/50 rounded-xl py-2 px-4 inline-block">
+              {email}
+            </p>
+          </div>
+
+          <EliMascot
+            message="Tap the link in your email to start your adventure! 🌍"
+            size="sm"
+          />
+
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 text-left bg-card rounded-2xl p-4 border border-border/40">
+              <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Open the email from Eliamap</p>
+                <p className="text-xs text-muted-foreground mt-0.5">It may take a minute to arrive</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 text-left bg-card rounded-2xl p-4 border border-border/40">
+              <CheckCircle2 className="h-5 w-5 text-muted-foreground/40 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Tap the verification link</p>
+                <p className="text-xs text-muted-foreground mt-0.5">You'll be redirected back to the app</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 text-left bg-card rounded-2xl p-4 border border-border/40">
+              <CheckCircle2 className="h-5 w-5 text-muted-foreground/40 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Start exploring!</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Your adventure awaits ✈️</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <p className="text-xs text-muted-foreground">
+              Didn't get the email? Check your spam folder
+            </p>
+            <Button
+              variant="outline"
+              className="rounded-xl w-full"
+              onClick={() => setShowVerifyScreen(false)}
+            >
+              ← Back to sign in
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-5">
