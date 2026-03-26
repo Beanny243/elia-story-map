@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import EliMascot from "@/components/shared/EliMascot";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, MailCheck, ExternalLink } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
