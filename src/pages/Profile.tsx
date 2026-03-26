@@ -1,4 +1,4 @@
-import { Globe, Building2, Compass, Route, Award, Settings, LogOut, ChevronRight, Crown } from "lucide-react";
+import { Globe, Building2, Compass, Route, Award, Settings, LogOut, ChevronRight, Crown, Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -15,7 +15,6 @@ const badges = [
   { emoji: "⛰️", name: "Adventurer", desc: "Completed 10 trips", check: (p: any, tripCount: number) => tripCount >= 10 },
 ];
 
-// Haversine formula to calculate distance between two coordinates in km
 const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -23,6 +22,9 @@ const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
+
+const stagger = { animate: { transition: { staggerChildren: 0.07 } } };
+const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -43,143 +45,154 @@ const Profile = () => {
           (await supabase.from("trips").select("id").eq("user_id", user.id)).data?.map(t => t.id) || []
         ),
       ]);
-
       if (profileRes.data) setProfile(profileRes.data);
       setTripCount(tripsRes.count || 0);
-
       const stops = stopsRes.data || [];
       const uniqueCountries = new Set(stops.map(s => s.country).filter(Boolean));
       const uniqueCities = new Set(stops.map(s => `${s.city}-${s.country}`).filter(Boolean));
-
-      // Calculate total distance from consecutive stops with coordinates
       let totalKm = 0;
-      // Group stops by trip
       const tripStops: Record<string, typeof stops> = {};
-      stops.forEach(s => {
-        if (!tripStops[s.trip_id]) tripStops[s.trip_id] = [];
-        tripStops[s.trip_id].push(s);
-      });
+      stops.forEach(s => { if (!tripStops[s.trip_id]) tripStops[s.trip_id] = []; tripStops[s.trip_id].push(s); });
       Object.values(tripStops).forEach(ts => {
         for (let i = 1; i < ts.length; i++) {
           const a = ts[i - 1], b = ts[i];
-          if (a.latitude && a.longitude && b.latitude && b.longitude) {
-            totalKm += haversine(a.latitude, a.longitude, b.latitude, b.longitude);
-          }
+          if (a.latitude && a.longitude && b.latitude && b.longitude) totalKm += haversine(a.latitude, a.longitude, b.latitude, b.longitude);
         }
       });
-
-      setComputedStats({
-        countries: uniqueCountries.size,
-        cities: uniqueCities.size,
-        km: Math.round(totalKm),
-      });
-
-      // Update profile with computed stats
+      setComputedStats({ countries: uniqueCountries.size, cities: uniqueCities.size, km: Math.round(totalKm) });
       if (profileRes.data) {
-        supabase.from("profiles").update({
-          countries_visited: uniqueCountries.size,
-          cities_visited: uniqueCities.size,
-          total_distance_km: Math.round(totalKm),
-        }).eq("user_id", user.id).then(() => {});
+        supabase.from("profiles").update({ countries_visited: uniqueCountries.size, cities_visited: uniqueCities.size, total_distance_km: Math.round(totalKm) }).eq("user_id", user.id).then(() => {});
       }
     };
     fetchStats();
   }, [user]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/auth");
-  };
+  const handleSignOut = async () => { await signOut(); navigate("/auth"); };
 
   return (
-    <div className="px-5 pt-12 space-y-6 pb-8">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4">
-        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-display font-bold text-primary">
-          {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?"}
-        </div>
-        <div>
-          <div className="flex items-center gap-1.5">
-            <h1 className="text-xl font-display font-bold text-foreground">{profile?.display_name || "Traveler"}</h1>
-            {isPremium && (
-              <span className="inline-flex items-center gap-0.5 bg-primary/15 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                <Crown className="h-3 w-3" /> PRO
-              </span>
-            )}
+    <div className="min-h-screen gradient-mesh">
+      <motion.div initial="initial" animate="animate" variants={stagger} className="px-5 pt-12 space-y-6 pb-28">
+        {/* Profile Header */}
+        <motion.div variants={fadeUp} className="flex items-center gap-4">
+          <div className="ring-gradient rounded-full">
+            <div className="h-16 w-16 rounded-full bg-card flex items-center justify-center text-2xl font-display font-bold text-primary">
+              {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?"}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">{profile?.bio || "Exploring the world 🌎"}</p>
-        </div>
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-4 gap-2">
-        <StatCard icon={Globe} label="Countries" value={computedStats.countries} />
-        <StatCard icon={Building2} label="Cities" value={computedStats.cities} />
-        <StatCard icon={Compass} label="Trips" value={tripCount} />
-        <StatCard icon={Route} label="km" value={computedStats.km >= 1000 ? `${Math.round(computedStats.km / 1000)}k` : computedStats.km} />
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
-        <EliMascot message={tripCount > 0 ? "Great progress! Keep exploring!" : "Create your first trip to start earning badges!"} size="sm" />
-      </motion.div>
-
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-3">
-        <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
-          <Award className="h-5 w-5 text-accent" /> Achievements
-        </h2>
-        <div className="space-y-2">
-          {badges.map((b) => {
-            const earned = b.check(profile, tripCount);
-            return (
-              <div key={b.name} className="bg-card rounded-xl p-3 shadow-card flex items-center gap-3">
-                <span className="text-2xl">{b.emoji}</span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">{b.name}</p>
-                  <p className="text-xs text-muted-foreground">{b.desc}</p>
-                </div>
-                <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${earned ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
-                  {earned ? "Earned" : "Locked"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </motion.section>
-
-      {!isPremium && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-              <Crown className="h-5 w-5 text-primary" />
+          <div className="flex-1">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-xl font-display font-bold text-foreground">{profile?.display_name || "Traveler"}</h1>
+              {isPremium && (
+                <span className="inline-flex items-center gap-0.5 gradient-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-glow">
+                  <Crown className="h-3 w-3" /> PRO
+                </span>
+              )}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-foreground">Unlock Premium</p>
-              <p className="text-xs text-muted-foreground">Get unlimited trips, AI & map access</p>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => navigate("/subscription")}
-              className="rounded-xl gap-1.5"
-            >
-              <Crown className="h-3.5 w-3.5" /> Upgrade
-            </Button>
+            <p className="text-sm text-muted-foreground">{profile?.bio || "Exploring the world 🌎"}</p>
           </div>
         </motion.div>
-      )}
 
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-2">
-        <button onClick={() => navigate("/settings")} className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors">
-          <Settings className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground flex-1">Settings</span>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-        <button
-          onClick={handleSignOut}
-          className="w-full bg-card rounded-xl p-3 shadow-card flex items-center gap-3 text-left hover:bg-secondary/50 transition-colors"
-        >
-          <LogOut className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground flex-1">Sign Out</span>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </motion.section>
+        {/* Stats */}
+        <motion.div variants={fadeUp} className="grid grid-cols-4 gap-2">
+          <StatCard icon={Globe} label="Countries" value={computedStats.countries} />
+          <StatCard icon={Building2} label="Cities" value={computedStats.cities} />
+          <StatCard icon={Compass} label="Trips" value={tripCount} />
+          <StatCard icon={Route} label="km" value={computedStats.km >= 1000 ? `${Math.round(computedStats.km / 1000)}k` : computedStats.km} />
+        </motion.div>
+
+        {/* Mascot */}
+        <motion.div variants={fadeUp}>
+          <EliMascot message={tripCount > 0 ? "Great progress! Keep exploring!" : "Create your first trip to start earning badges!"} size="sm" />
+        </motion.div>
+
+        {/* Achievements */}
+        <motion.section variants={fadeUp} className="space-y-3">
+          <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg gradient-accent flex items-center justify-center shadow-accent-glow">
+              <Award className="h-3.5 w-3.5 text-white" />
+            </div>
+            Achievements
+          </h2>
+          <div className="space-y-2">
+            {badges.map((b) => {
+              const earned = b.check(profile, tripCount);
+              return (
+                <motion.div
+                  key={b.name}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-card rounded-2xl p-3.5 shadow-card border border-border/30 flex items-center gap-3"
+                >
+                  <div className={`text-2xl h-10 w-10 rounded-xl flex items-center justify-center ${earned ? 'bg-success/10' : 'bg-muted/60'}`}>
+                    {b.emoji}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground">{b.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{b.desc}</p>
+                  </div>
+                  <div className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                    earned
+                      ? "gradient-primary text-white shadow-glow"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {earned ? "✓ Earned" : "Locked"}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.section>
+
+        {/* Upgrade CTA */}
+        {!isPremium && (
+          <motion.div variants={fadeUp}>
+            <div className="relative overflow-hidden rounded-2xl gradient-hero p-5 shadow-glow">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                  <Crown className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white">Unlock Premium</p>
+                  <p className="text-xs text-white/70 mt-0.5">Unlimited trips, AI & map access</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => navigate("/subscription")}
+                  className="rounded-xl bg-white text-primary font-bold hover:bg-white/90 border-0 shadow-elevated"
+                >
+                  Upgrade
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Menu */}
+        <motion.section variants={fadeUp} className="space-y-2">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/settings")}
+            className="w-full bg-card rounded-2xl p-4 shadow-card border border-border/30 flex items-center gap-3 text-left transition-all duration-300"
+          >
+            <div className="h-9 w-9 rounded-xl bg-muted/60 flex items-center justify-center">
+              <Settings className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <span className="text-sm font-semibold text-foreground flex-1">Settings</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSignOut}
+            className="w-full bg-card rounded-2xl p-4 shadow-card border border-border/30 flex items-center gap-3 text-left transition-all duration-300"
+          >
+            <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+              <LogOut className="h-4 w-4 text-destructive" />
+            </div>
+            <span className="text-sm font-semibold text-foreground flex-1">Sign Out</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </motion.button>
+        </motion.section>
+      </motion.div>
     </div>
   );
 };

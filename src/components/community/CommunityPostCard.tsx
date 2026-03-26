@@ -19,8 +19,8 @@ interface CommunityPostCardProps {
 }
 
 const postTypeColors: Record<string, string> = {
-  experience: "bg-accent text-accent-foreground",
-  sighting: "bg-primary/10 text-primary",
+  experience: "gradient-accent text-white",
+  sighting: "gradient-primary text-white",
   tip: "bg-secondary text-secondary-foreground",
   question: "bg-muted text-muted-foreground",
 };
@@ -98,41 +98,47 @@ const CommunityPostCard = ({ post, profile, index, onRefresh }: CommunityPostCar
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06 }}
-      className="bg-card rounded-2xl shadow-card overflow-hidden"
+      transition={{ delay: index * 0.05 }}
+      className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 pb-2 flex items-center gap-3">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src={profile?.avatar_url} />
-          <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-            {(profile?.display_name || "?")[0].toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <div className="ring-gradient rounded-full p-[1.5px]">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={profile?.avatar_url} />
+            <AvatarFallback className="bg-card text-primary text-xs font-bold">
+              {(profile?.display_name || "?")[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">{profile?.display_name || "Traveler"}</p>
+          <p className="text-sm font-bold text-foreground truncate">{profile?.display_name || "Traveler"}</p>
           <p className="text-[10px] text-muted-foreground">{timeAgo(post.created_at)}</p>
         </div>
         {!isOwn && (
-          <Button
-            size="sm"
-            variant={isFollowing ? "secondary" : "outline"}
-            className="h-7 text-[10px] rounded-lg gap-1 px-2"
-            onClick={toggleFollow}
-          >
-            {isFollowing ? <UserCheck className="h-3 w-3" /> : <UserPlus className="h-3 w-3" />}
-            {isFollowing ? "Following" : "Follow"}
-          </Button>
+          <motion.div whileTap={{ scale: 0.9 }}>
+            <Button
+              size="sm"
+              variant={isFollowing ? "secondary" : "outline"}
+              className={`h-7 text-[10px] rounded-xl gap-1 px-2.5 border-border/30 ${isFollowing ? "" : "hover:gradient-primary hover:text-white hover:border-transparent"}`}
+              onClick={toggleFollow}
+            >
+              {isFollowing ? <UserCheck className="h-3 w-3" /> : <UserPlus className="h-3 w-3" />}
+              {isFollowing ? "Following" : "Follow"}
+            </Button>
+          </motion.div>
         )}
       </div>
 
       {/* Photo */}
       {post.photo_url && (
-        <img src={post.photo_url} alt={post.title} className="w-full aspect-[4/3] object-cover" />
+        <div className="overflow-hidden">
+          <img src={post.photo_url} alt={post.title} className="w-full aspect-[4/3] object-cover" />
+        </div>
       )}
 
       {/* Content */}
-      <div className="p-4 pt-3 space-y-2">
+      <div className="p-4 pt-3 space-y-2.5">
         <div className="flex items-center gap-2 flex-wrap">
           <Badge className={`text-[10px] font-bold border-0 ${postTypeColors[post.post_type] || postTypeColors.experience}`}>
             {categoryIcons[post.category || "general"]} {post.post_type}
@@ -143,19 +149,20 @@ const CommunityPostCard = ({ post, profile, index, onRefresh }: CommunityPostCar
             </span>
           )}
         </div>
-        <h3 className="text-sm font-bold text-foreground">{post.title}</h3>
+        <h3 className="text-sm font-bold text-foreground leading-snug">{post.title}</h3>
         {post.body && <p className="text-xs text-muted-foreground leading-relaxed">{post.body}</p>}
 
-        {/* Reactions */}
         <ReactionBar postId={post.id} />
 
         {/* Action Bar */}
-        <div className="flex items-center gap-1 pt-1 border-t border-border/50">
-          <Button variant="ghost" size="sm" className={`h-8 gap-1.5 text-xs rounded-lg ${liked ? "text-red-500" : "text-muted-foreground"}`} onClick={toggleLike}>
-            <Heart className={`h-4 w-4 ${liked ? "fill-red-500" : ""}`} />
-            {likeCount > 0 && likeCount}
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs rounded-lg text-muted-foreground" onClick={() => setShowComments(!showComments)}>
+        <div className="flex items-center gap-1 pt-1.5 border-t border-border/30">
+          <motion.div whileTap={{ scale: 0.85 }}>
+            <Button variant="ghost" size="sm" className={`h-8 gap-1.5 text-xs rounded-xl ${liked ? "text-red-500" : "text-muted-foreground"}`} onClick={toggleLike}>
+              <Heart className={`h-4 w-4 transition-all ${liked ? "fill-red-500 scale-110" : ""}`} />
+              {likeCount > 0 && likeCount}
+            </Button>
+          </motion.div>
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs rounded-xl text-muted-foreground" onClick={() => setShowComments(!showComments)}>
             <MessageSquare className="h-4 w-4" />
             {commentCount > 0 && commentCount}
           </Button>
@@ -165,10 +172,7 @@ const CommunityPostCard = ({ post, profile, index, onRefresh }: CommunityPostCar
         </div>
       </div>
 
-      {/* Comments */}
-      {showComments && (
-        <PostComments postId={post.id} onCountChange={setCommentCount} />
-      )}
+      {showComments && <PostComments postId={post.id} onCountChange={setCommentCount} />}
     </motion.div>
   );
 };
