@@ -58,7 +58,13 @@ const ShareMenu = ({ title, text, url }: ShareMenuProps) => {
       return;
     }
 
-    toast({ title: "Opened share", description: "If the app blocks this, paste the copied link manually." });
+    toast({
+      title: result === "opened" ? "Opened share" : "Share app blocked",
+      description:
+        result === "opened"
+          ? "Your share app opened in a new tab."
+          : "This app blocked the share popup, so use the copied link instead.",
+    });
   };
 
   return (
