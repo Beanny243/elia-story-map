@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import EliMascot from "@/components/shared/EliMascot";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, MailCheck, ExternalLink } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +15,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showVerifyScreen, setShowVerifyScreen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -67,12 +68,7 @@ const Auth = () => {
 
         // If auto-confirm is off, user needs to verify email
         if (data.user && !data.session) {
-          toast({
-            title: "Account created!",
-            description: "Check your email to verify your account.",
-          });
-          // Save answers so they persist — we'll apply them on first login
-          // Keep onboarding_answers in localStorage for now
+          setShowVerifyScreen(true);
         }
 
         // If session exists (auto-confirm on), save answers immediately
@@ -101,6 +97,76 @@ const Auth = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  if (showVerifyScreen) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-5">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-sm space-y-6 text-center"
+        >
+          <motion.div
+            initial={{ y: -10 }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+            className="mx-auto w-20 h-20 rounded-full bg-accent/15 flex items-center justify-center"
+          >
+            <MailCheck className="h-10 w-10 text-accent" />
+          </motion.div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-display font-bold text-foreground">Check your inbox!</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              We sent a verification link to<br />
+              <span className="font-semibold text-foreground">{email}</span>
+            </p>
+          </div>
+
+          <EliMascot
+            message="Almost there! Tap the link in your email to start your adventure 🌍"
+            size="sm"
+          />
+
+          <div className="space-y-3 pt-2">
+            <a
+              href="https://mail.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-accent text-accent-foreground font-bold hover:bg-accent/90 transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Open Email App
+            </a>
+
+            <Button
+              variant="ghost"
+              className="w-full rounded-xl text-muted-foreground"
+              onClick={() => {
+                setShowVerifyScreen(false);
+                setIsLogin(true);
+              }}
+            >
+              Back to Sign In
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Didn't get the email? Check your spam folder or{" "}
+            <button
+              onClick={() => {
+                setShowVerifyScreen(false);
+                setIsLogin(false);
+              }}
+              className="text-accent font-semibold hover:underline"
+            >
+              try again
+            </button>
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-5">
