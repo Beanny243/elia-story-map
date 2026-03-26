@@ -78,6 +78,7 @@ export default {
         card: "var(--shadow-card)",
         elevated: "var(--shadow-elevated)",
         glow: "var(--shadow-glow)",
+        "accent-glow": "var(--shadow-accent-glow)",
       },
       keyframes: {
         "accordion-down": {
