@@ -6,7 +6,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { shareContent, shareToTwitter, shareToFacebook, shareToWhatsApp, shareToTelegram } from "@/lib/share";
+import {
+  copyShareLink,
+  copyShareMessage,
+  shareContent,
+  shareToFacebook,
+  shareToTelegram,
+  shareToTwitter,
+  shareToWhatsApp,
+} from "@/lib/share";
 import { useToast } from "@/hooks/use-toast";
 
 interface ShareMenuProps {
@@ -23,7 +31,34 @@ const ShareMenu = ({ title, text, url }: ShareMenuProps) => {
     const result = await shareContent({ title, text, url: shareUrl });
     if (!result) {
       toast({ title: "Shared!", description: "Content shared successfully." });
+      return;
     }
+
+    const copied = await copyShareMessage(text, shareUrl);
+    toast({
+      title: copied ? "Link copied" : "Share ready",
+      description: copied ? "The share link was copied to your clipboard." : "Copy and share this link manually.",
+    });
+  };
+
+  const handleShareAction = async (
+    action: () => Promise<string>,
+    fallback?: () => Promise<boolean>,
+  ) => {
+    const result = await action();
+
+    if (result === "shared") {
+      toast({ title: "Shared!", description: "Content shared successfully." });
+      return;
+    }
+
+    const copied = fallback ? await fallback() : false;
+    if (copied) {
+      toast({ title: "Link copied", description: "The share details were copied in case the app blocks popups." });
+      return;
+    }
+
+    toast({ title: "Opened share", description: "If the app blocks this, paste the copied link manually." });
   };
 
   return (
@@ -39,16 +74,16 @@ const ShareMenu = ({ title, text, url }: ShareMenuProps) => {
             <Share2 className="h-4 w-4" /> Share...
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={() => shareToTwitter(text, shareUrl)} className="gap-2">
+        <DropdownMenuItem onClick={() => void handleShareAction(() => shareToTwitter(title, text, shareUrl), () => copyShareMessage(text, shareUrl))} className="gap-2">
           <Twitter className="h-4 w-4" /> X (Twitter)
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => shareToFacebook(shareUrl)} className="gap-2">
+        <DropdownMenuItem onClick={() => void handleShareAction(() => shareToFacebook(title, text, shareUrl), () => copyShareLink(shareUrl))} className="gap-2">
           <Facebook className="h-4 w-4" /> Facebook
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => shareToWhatsApp(text, shareUrl)} className="gap-2">
+        <DropdownMenuItem onClick={() => void handleShareAction(() => shareToWhatsApp(title, text, shareUrl), () => copyShareMessage(text, shareUrl))} className="gap-2">
           <MessageCircle className="h-4 w-4" /> WhatsApp
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => shareToTelegram(text, shareUrl)} className="gap-2">
+        <DropdownMenuItem onClick={() => void handleShareAction(() => shareToTelegram(title, text, shareUrl), () => copyShareMessage(text, shareUrl))} className="gap-2">
           <Send className="h-4 w-4" /> Telegram
         </DropdownMenuItem>
       </DropdownMenuContent>
