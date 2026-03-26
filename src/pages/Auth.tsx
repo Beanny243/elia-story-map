@@ -61,7 +61,7 @@ const Auth = () => {
           password,
           options: {
             data: { display_name: displayName },
-            emailRedirectTo: "https://elia-story-map.lovable.app",
+            emailRedirectTo: "https://eliamap.site",
           },
         });
         if (error) throw error;
