@@ -1,5 +1,9 @@
 project_id = "rzidgauuxcaymdjjqvlk"
 
+[auth]
+site_url = "https://elia-story-map.lovable.app"
+additional_redirect_urls = ["https://elia-story-map.lovable.app", "https://id-preview--511aa0cd-c569-4494-8ac5-ca3ec7c88304.lovable.app"]
+
 [functions.generate-itinerary]
 verify_jwt = false
 
