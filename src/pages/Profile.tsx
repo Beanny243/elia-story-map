@@ -15,12 +15,22 @@ const badges = [
   { emoji: "⛰️", name: "Adventurer", desc: "Completed 10 trips", check: (p: any, tripCount: number) => tripCount >= 10 },
 ];
 
+// Haversine formula to calculate distance between two coordinates in km
+const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 const Profile = () => {
   const { user, signOut } = useAuth();
   const { isPremium } = useSubscriptionGate();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [tripCount, setTripCount] = useState(0);
+  const [computedStats, setComputedStats] = useState({ countries: 0, cities: 0, km: 0 });
 
   useEffect(() => {
     if (!user) return;
