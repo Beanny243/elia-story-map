@@ -46,14 +46,12 @@ export const shareContent = async (data: { title: string; text: string; url?: st
 const openLink = (url: string) => {
   if (Capacitor.isNativePlatform()) {
     void Browser.open({ url });
-    return;
+    return true;
   }
 
   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 
-  if (!newWindow) {
-    window.location.assign(url);
-  }
+  return !!newWindow;
 };
 
 export const copyShareLink = async (url: string) => copyToClipboard(url);
@@ -61,37 +59,33 @@ export const copyShareLink = async (url: string) => copyToClipboard(url);
 export const copyShareMessage = async (text: string, url: string) => copyToClipboard(`${text} ${url}`.trim());
 
 export const shareToTwitter = async (title: string, text: string, url: string) => {
-  if (await tryNativeShare({ title, text, url })) {
-    return "shared";
+  if (canUseNativeShare()) {
+    return (await tryNativeShare({ title, text, url })) ? "shared" : "blocked";
   }
 
-  openLink(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`);
-  return "opened";
+  return openLink(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`) ? "opened" : "blocked";
 };
 
 export const shareToFacebook = async (title: string, text: string, url: string) => {
-  if (await tryNativeShare({ title, text, url })) {
-    return "shared";
+  if (canUseNativeShare()) {
+    return (await tryNativeShare({ title, text, url })) ? "shared" : "blocked";
   }
 
-  openLink(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
-  return "opened";
+  return openLink(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`) ? "opened" : "blocked";
 };
 
 export const shareToWhatsApp = async (title: string, text: string, url: string) => {
-  if (await tryNativeShare({ title, text, url })) {
-    return "shared";
+  if (canUseNativeShare()) {
+    return (await tryNativeShare({ title, text, url })) ? "shared" : "blocked";
   }
 
-  openLink(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`);
-  return "opened";
+  return openLink(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`) ? "opened" : "blocked";
 };
 
 export const shareToTelegram = async (title: string, text: string, url: string) => {
-  if (await tryNativeShare({ title, text, url })) {
-    return "shared";
+  if (canUseNativeShare()) {
+    return (await tryNativeShare({ title, text, url })) ? "shared" : "blocked";
   }
 
-  openLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
-  return "opened";
+  return openLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`) ? "opened" : "blocked";
 };
