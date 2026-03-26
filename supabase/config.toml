@@ -1,26 +1,23 @@
 project_id = "rzidgauuxcaymdjjqvlk"
 
 [auth]
-site_url = "https://elia-story-map.lovable.app"
-additional_redirect_urls = ["https://elia-story-map.lovable.app", "https://id-preview--511aa0cd-c569-4494-8ac5-ca3ec7c88304.lovable.app"]
+  additional_redirect_urls = ["https://elia-story-map.lovable.app", "https://id-preview--511aa0cd-c569-4494-8ac5-ca3ec7c88304.lovable.app"]
+  site_url = "https://elia-story-map.lovable.app"
 
-[functions.generate-itinerary]
-verify_jwt = false
-
-[functions.push-setup]
-verify_jwt = false
-
-[functions.send-push-notifications]
-verify_jwt = false
-
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.check-subscription]
-verify_jwt = false
-
-[functions.customer-portal]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.check-subscription]
+    verify_jwt = false
+  [functions.create-checkout]
+    verify_jwt = false
+  [functions.customer-portal]
+    verify_jwt = false
+  [functions.generate-itinerary]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.push-setup]
+    verify_jwt = false
+  [functions.send-push-notifications]
+    verify_jwt = false
