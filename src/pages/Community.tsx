@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Plus, Filter } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +40,6 @@ const Community = () => {
     const { data } = await query;
     if (data) {
       setPosts(data);
-      // Fetch profiles
       const userIds = [...new Set(data.map((p) => p.user_id))];
       if (userIds.length > 0) {
         const { data: profs } = await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", userIds);
@@ -56,7 +55,6 @@ const Community = () => {
 
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
-  // Realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel("community-posts")
@@ -66,38 +64,43 @@ const Community = () => {
   }, [fetchPosts]);
 
   return (
-    <div className="pb-24">
+    <div className="min-h-screen gradient-mesh pb-24">
       {/* Header */}
-      <div className="px-5 pt-6 pb-3">
-        <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-display font-bold text-foreground">
-          Community
-        </motion.h1>
-        <p className="text-sm text-muted-foreground">Share stories, spot wildlife, and connect with travelers</p>
+      <div className="px-5 pt-14 pb-4">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-2xl font-display font-bold text-foreground tracking-tight">Community</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Share stories, spot wildlife, and connect with travelers</p>
+        </motion.div>
       </div>
 
       {/* Type Filters */}
       <div className="px-5 pb-2 flex gap-1.5 overflow-x-auto scrollbar-hide">
         {FILTERS.map((f) => (
-          <Badge
-            key={f.value}
-            onClick={() => setTypeFilter(f.value)}
-            className={`cursor-pointer whitespace-nowrap text-[11px] px-2.5 py-1 rounded-lg border-0 transition-all ${
-              typeFilter === f.value ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-            }`}
-          >
-            {f.icon} {f.label}
-          </Badge>
+          <motion.div key={f.value} whileTap={{ scale: 0.93 }}>
+            <Badge
+              onClick={() => setTypeFilter(f.value)}
+              className={`cursor-pointer whitespace-nowrap text-[11px] px-3 py-1.5 rounded-xl border transition-all duration-300 ${
+                typeFilter === f.value
+                  ? "gradient-accent text-white border-transparent shadow-accent-glow"
+                  : "bg-card text-muted-foreground border-border/30 shadow-card"
+              }`}
+            >
+              {f.icon} {f.label}
+            </Badge>
+          </motion.div>
         ))}
       </div>
 
       {/* Category Filters */}
-      <div className="px-5 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
+      <div className="px-5 pb-4 flex gap-1.5 overflow-x-auto scrollbar-hide">
         {CATEGORY_FILTERS.map((f) => (
           <Badge
             key={f.value}
             onClick={() => setCategoryFilter(f.value)}
-            className={`cursor-pointer whitespace-nowrap text-[10px] px-2 py-0.5 rounded-md border-0 transition-all ${
-              categoryFilter === f.value ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:bg-muted/80"
+            className={`cursor-pointer whitespace-nowrap text-[10px] px-2.5 py-1 rounded-lg border transition-all duration-300 ${
+              categoryFilter === f.value
+                ? "gradient-primary text-white border-transparent"
+                : "bg-card/60 text-muted-foreground border-border/20"
             }`}
           >
             {f.label}
@@ -108,21 +111,31 @@ const Community = () => {
       {/* Posts */}
       <div className="px-5 space-y-4">
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-sm text-muted-foreground">Loading posts...</p>
+          <div className="text-center py-16 space-y-3">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              className="w-8 h-8 mx-auto rounded-full border-2 border-primary/20 border-t-primary"
+            />
+            <p className="text-xs text-muted-foreground">Loading posts...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-12 space-y-3">
-            <p className="text-4xl">🌍</p>
-            <p className="text-sm text-muted-foreground">No posts yet. Be the first to share!</p>
-            <Button onClick={() => setShowCreate(true)} className="rounded-xl gap-2 bg-accent text-accent-foreground hover:bg-accent/90">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-16 space-y-4">
+            <p className="text-5xl">🌍</p>
+            <div>
+              <p className="text-sm font-semibold text-foreground">No posts yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Be the first to share your story!</p>
+            </div>
+            <Button onClick={() => setShowCreate(true)} className="rounded-2xl gap-2 gradient-accent text-white border-0 shadow-accent-glow font-bold">
               <Plus className="h-4 w-4" /> Create Post
             </Button>
-          </div>
+          </motion.div>
         ) : (
-          posts.map((post, i) => (
-            <CommunityPostCard key={post.id} post={post} profile={profiles[post.user_id]} index={i} onRefresh={fetchPosts} />
-          ))
+          <AnimatePresence>
+            {posts.map((post, i) => (
+              <CommunityPostCard key={post.id} post={post} profile={profiles[post.user_id]} index={i} onRefresh={fetchPosts} />
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
@@ -130,11 +143,12 @@ const Community = () => {
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.3, type: "spring" }}
+        whileTap={{ scale: 0.85 }}
+        transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
         onClick={() => setShowCreate(true)}
-        className="fixed bottom-20 right-5 z-40 h-12 w-12 rounded-full bg-accent text-accent-foreground shadow-lg flex items-center justify-center hover:bg-accent/90 transition-colors"
+        className="fixed bottom-24 right-5 z-40 h-14 w-14 rounded-2xl gradient-accent text-white shadow-accent-glow flex items-center justify-center"
       >
-        <Plus className="h-5 w-5" />
+        <Plus className="h-6 w-6" />
       </motion.button>
 
       <CreatePostSheet open={showCreate} onOpenChange={setShowCreate} onCreated={fetchPosts} />
