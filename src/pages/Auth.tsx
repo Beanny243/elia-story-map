@@ -48,11 +48,14 @@ const Auth = () => {
       } else {
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { data: { display_name: displayName }, emailRedirectTo: "https://eliamap.site" },
+          options: { data: { display_name: displayName } },
         });
         if (error) throw error;
-        if (data.user && !data.session) setShowVerifyScreen(true);
-        if (data.user && data.session) { await saveOnboardingAnswers(data.user.id); navigate("/"); }
+        if (data.user) {
+          await saveOnboardingAnswers(data.user.id);
+          toast({ title: "Welcome to Eliamap! 🌍", description: "Your account has been created successfully." });
+          navigate("/");
+        }
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
