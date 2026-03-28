@@ -15,7 +15,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const hasOnboardingAnswers = !!localStorage.getItem("onboarding_answers");
