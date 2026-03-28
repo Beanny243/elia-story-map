@@ -52,6 +52,15 @@ const Auth = () => {
         if (error) throw error;
         if (data.user) {
           await saveOnboardingAnswers(data.user.id);
+          // Send welcome email (fire-and-forget)
+          supabase.functions.invoke('send-transactional-email', {
+            body: {
+              templateName: 'welcome',
+              recipientEmail: email,
+              idempotencyKey: `welcome-${data.user.id}`,
+              templateData: { displayName: displayName || undefined },
+            },
+          }).catch(console.error);
           toast({ title: "Welcome to Eliamap! 🌍", description: "Your account has been created successfully." });
           navigate("/");
         }
