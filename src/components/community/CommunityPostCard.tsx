@@ -166,9 +166,7 @@ const CommunityPostCard = ({ post, profile, index, onRefresh }: CommunityPostCar
             <MessageSquare className="h-4 w-4" />
             {commentCount > 0 && commentCount}
           </Button>
-          <div className="ml-auto">
-            <ShareMenu title={post.title} text={`${post.title} - ${post.body || ""}`} />
-          </div>
+          <div className="ml-auto" />
         </div>
       </div>
 
