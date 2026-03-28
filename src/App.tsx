@@ -23,6 +23,7 @@ import AIItinerary from "./pages/AIItinerary";
 import Community from "./pages/Community";
 import SpottingJournal from "./pages/SpottingJournal";
 import NotFound from "./pages/NotFound";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/subscription" element={<Subscription />} />
               </Route>
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </MobileAppWrapper>
